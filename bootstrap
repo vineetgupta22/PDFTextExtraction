@@ -1,0 +1,11 @@
+# !/bin/sh
+
+mkdir m4
+aclocal
+autoheader
+autoconf
+libtoolize --copy
+automake --add-missing --copy
+autoreconf
+automake
+./configure

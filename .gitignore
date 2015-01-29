@@ -27,3 +27,27 @@
 *.i*86
 *.x86_64
 *.hex
+
+#ignore docs directory
+docs/*
+.libs/
+
+#Extra Files not required..
+autoscan*
+autom4te.cache/*
+.deps/
+config.*
+aclocal*
+m4*
+missing
+depcomp
+compile
+libtool
+INSTALL
+*.log
+Makefile
+Makefile.in
+ltmain.sh
+stamp-h1
+install-sh
+configure
