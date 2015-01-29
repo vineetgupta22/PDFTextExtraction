@@ -6,40 +6,42 @@
 *	Purpose of Program:	Extraction of Text from PDF Files
 *	Program Owner:		Cee Emm Infotech
 *	Chief Developer:	Vineet Gupta
-*	
+*
 *	contact: vineetgupta22@gmail.com
 *	Address: Cee Emm Infotech, 605, Sector 10D, Chandgiarh [INDIA]
 *
 **/
 
 /**
-*	@file		:	PDFTextExtractionExtern.h
-*	@brief		:	External Functions
+*	@file		:	PDFAll.h
+*	@brief		:	Including Object Structures etc.
 **/
 
-	#ifndef		_PDFTextExtractionExtern_
+	#ifndef		_PDFTextExtractionAll_
 		/**
-		*	@def	:	_PDFTextExtractionExtern_
+		*	@def	:	__PDFTextExtraction__
 		*	@brief	:	Header Including Parameter for Only Once.
 		**/
-		#define			_PDFTextExtractionExtern_
+		#define			_PDFTextExtractionAll_
 
 		//doing alignment of 4 bytes as required by some systems
 		#pragma		pack(push, 4)
 
 
-		//Function defined under src/PDFTextExtraction.c
-		extern PDFExport void PDFAPI PDFTextExtraction(const char *name);
+		//Including Stream structures
+		#ifndef		_PDFStream_
+			#include <PDFStream.h>
+		#endif
 
+		//Including Lex Structures
+		#ifndef		_PDFLex_
+			#include <PDFLex.h>
+		#endif
 
-		//Function defined under src/PDFFileStream.c
-		extern pdf_stream *pdf_open_file(const char *name);
-		extern pdf_stream *pdf_keep_stream(pdf_stream *stm);
-
-
-		//Function defined under src/PDFLex.c
-		extern void pdf_lexbuf_init(pdf_lexbuf *lex_buffer, int size);
-
+		//Including document structures
+		#ifndef		_PDFDocument_
+			#include <PDFDocument.h>
+		#endif
 
 		//Endling of alignment
 		#pragma		pack(pop)

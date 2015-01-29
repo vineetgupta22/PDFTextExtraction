@@ -253,7 +253,22 @@
 			#define 	PDFImport			/* Nothing */
 			#define 	PDFAPI				/* Nothing */
 		#endif
-		
+
+		#ifndef		PDFIsFolder
+			/**
+			*	@def		:		PDFIsFolder
+			*	@brief		:		Checking the Directory Entry is Folder
+			**/
+			#define		PDFIsFolder			0x4
+		#endif
+
+		#ifndef		PDFIsFile
+			/**
+			*	@def		:		PDFIsFile
+			*	@brief		:		Checking the Directory Entry is File or not
+			**/
+			#define		PDFIsFile			0x8
+		#endif
 		
 
 		//Endling of alignment

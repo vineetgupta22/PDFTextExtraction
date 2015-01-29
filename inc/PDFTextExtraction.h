@@ -81,6 +81,11 @@
 			#include<PDFMacros.h>
 		#endif
 
+		//Including Structures typedef etc
+		#ifndef _PDFTextExtractionAll_
+			#include<PDFAll.h>
+		#endif
+
 		//Defined extern Functions
 		#ifndef _PDFTextExtractionExtern_
 			#include<PDFExtern.h>

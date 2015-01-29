@@ -25,10 +25,8 @@
 		//Whether you want to extract text from directory or
 		//File. You just have to call one function
 
-		//Calling the text extraction presently I have sub-directory
-		//called docs and having many pdf documents in it which have
-		//sub-directories in it also.
-		PDFTextExtraction("docs");
+		//Calling the text extraction the File
+		PDFTextExtraction("docs/judfile2.pdf");
 
 		return 0;
 	}
