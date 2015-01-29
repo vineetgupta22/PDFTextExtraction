@@ -48,6 +48,7 @@
 
 		stm=(pdf_stream*)malloc(sizeof(pdf_stream));
 		memset(stm, 0, sizeof(pdf_stream));
+		MallocSize+=sizeof(pdf_stream);
 
 		//Increasing reference counts
 		stm->refs = 1;
@@ -64,6 +65,7 @@
 		//Memory Allocation of stream file
 		state=(pdf_file_stream*)malloc(sizeof(pdf_file_stream));
 		memset(state, 0, sizeof(pdf_file_stream));
+		MallocSize+=sizeof(pdf_file_stream);
 
 		state->file = fd;
 

@@ -27,6 +27,7 @@
 		//doing alignment of 4 bytes as required by some systems
 		#pragma		pack(push, 4)
 
+		extern 		unsigned long 				MallocSize;
 
 		//Including Stream structures
 		#ifndef		_PDFStream_

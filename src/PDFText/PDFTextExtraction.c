@@ -29,12 +29,16 @@
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
+	unsigned long MallocSize;
 	/***************************** Global Variables ********************/
 
 
 	PDFExport void PDFAPI PDFTextExtraction(const char *name){
 		pdf_stream *file = NULL;
 		pdf_document *doc;
+
+		//For Keeping the size of malloc done and freed.
+		MallocSize=0;
 
 		//Sending to Open the File for Processing
 		file = pdf_open_file(name);
@@ -44,6 +48,8 @@
 
 		//Started Reading of document
 		pdf_init_document(doc);
+
+		printf("Total Memory Allocation done=%lu\n\n", MallocSize);
 	}
 
 
@@ -53,6 +59,7 @@
 
 		doc=(pdf_document*)malloc(sizeof(pdf_document));
 		memset(doc, 0, sizeof(pdf_document));
+		MallocSize+=sizeof(pdf_document);
 
 		//Sending to Init the lex elements for reading document
 		pdf_lexbuf_init(&doc->lexbuf.base, PDFTextExt_LEXBUF_LARGE);
@@ -64,7 +71,7 @@
 	void pdf_init_document(pdf_document *doc){
 		//Starting the Reading of PDF File
 		if ( doc ){
-			printf("Started Reading of PDF File");
+			printf("Started Reading of PDF File\n\n");
 		}
 	}
 
