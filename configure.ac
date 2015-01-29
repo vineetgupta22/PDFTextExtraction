@@ -98,6 +98,7 @@ AC_CHECK_HEADERS([stdio.h string.h stdlib.h unistd.h dirent.h sys/types.h sys/st
 AC_CONFIG_FILES([Makefile
                  inc/Makefile
                  src/Makefile
+				 src/PDFText/Makefile
 				 ])
 AC_OUTPUT
 	

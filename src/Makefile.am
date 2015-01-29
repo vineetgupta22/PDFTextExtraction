@@ -8,17 +8,19 @@ CFLAGS = -Wall -Wextra -Werror -Wimplicit-function-declaration -Wpointer-sign -p
 	-W -O3 -g -posix
 
 MYLIBFLAGS = -no-undefined -export-symbols-regex -fpic -pie -shared -Wl,--kill-at -fomit-frame-pointer
+SUBDIRS = PDFText
 windres = @WINDRES@
 
 FILES = Main.c				
 
 #Package to create
-bin_PROGRAMS = PDFTextExtraction
-PDFTextExtraction_CFLAGS = $(AM_CFLAGS)
-PDFTextExtraction_SOURCES = $(FILES)
+bin_PROGRAMS = PDFTextExt
+PDFTextExt_CFLAGS = $(AM_CFLAGS)
+PDFTextExt_SOURCES = $(FILES)
+PDFTextExt_LDADD = $(top_srcdir)/src/PDFText/libPDFTextExtraction.la
 
 if PDFWINDRES
-PDFTextExtraction_SOURCES += PDFTextExtraction.rc
+PDFTextExt_SOURCES += PDFTextExtraction.rc
 endif
 
 .rc.o :

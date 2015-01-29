@@ -18,9 +18,17 @@
 *	@brief		:	Exe Project 
 **/
 
-	#include <stdio.h>
+	#include <PDFTextExtraction.h>
 
-	int main(int argc __attribute__ ((unused)), char **argv __attribute__ ((unused))){
-		printf("Starting things");
+	int main(int argc PDFUnused, char **argv PDFUnused){
+
+		//Whether you want to extract text from directory or
+		//File. You just have to call one function
+
+		//Calling the text extraction presently I have sub-directory
+		//called docs and having many pdf documents in it which have
+		//sub-directories in it also.
+		PDFTextExtraction("docs");
+
 		return 0;
 	}
