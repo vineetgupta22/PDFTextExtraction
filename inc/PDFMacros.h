@@ -269,7 +269,40 @@
 			**/
 			#define		PDFIsFile			0x8
 		#endif
+
+
+		/**
+		*	@def 			PDFSEEK_CUR
+		*	@brief			The new file position will be the current
+		*		position plus offset
+		**/
+		#define PDFSEEK_CUR    					1
+
+		/**
+		*	@def 			PDFSEEK_END
+		*	@brief			The new file position will be the end of the file
+		*		plus offset in bytes
+		**/
+		#define PDFSEEK_END    					2
+
+		/**
+		*	@def 			PDFSEEK_SET
+		*	@brief			The new file position will be the beginning of the
+		*		file plus offset (in bytes).
+		**/
+		#define PDFSEEK_SET    					0
+
+		/**
+		*	@def 			PDFSeek
+		*	@brief			Setting the cursor position
+		**/
+		#define				PDFSeek				lseek
 		
+		/**
+		*	@def 			PDFRead
+		*	@brief			PDF File Reading
+		**/
+		#define				PDFRead				read
 
 		//Endling of alignment
 		#pragma		pack(pop)

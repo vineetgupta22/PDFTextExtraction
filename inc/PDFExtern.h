@@ -33,13 +33,25 @@
 
 
 		//Function defined under src/PDFFileStream.c
+		extern int pdf_read_byte(pdf_stream *stm);
+		extern int pdf_peek_byte(pdf_stream *stm);
+		extern int pdf_next(pdf_stream *stm, int n);
 		extern pdf_stream *pdf_open_file(const char *name);
 		extern pdf_stream *pdf_keep_stream(pdf_stream *stm);
+		extern void pdf_read_line(pdf_stream *stm, char *mem, int n);
+		extern void pdf_seek(pdf_stream *stm, int offset, int whence);
 
 
 		//Function defined under src/PDFLex.c
 		extern void pdf_lexbuf_init(pdf_lexbuf *lex_buffer, int size);
 
+
+		//Functions defined under src/PDFUtility.c
+		extern int pdf_iswhite(int ch);
+
+
+		//Functions defined under src/PDFString.c
+		extern float pdf_atof(const char *s);
 
 		//Endling of alignment
 		#pragma		pack(pop)

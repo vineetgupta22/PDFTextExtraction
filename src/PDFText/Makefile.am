@@ -7,9 +7,11 @@ AM_CFLAGS1 = -I$(top_srcdir)/inc -Wall -Wextra -Werror -Wimplicit-function-decla
 
 MYLIBFLAGS = -no-undefined -export-symbols-regex -fpic -pie -shared -Wl,--kill-at -fomit-frame-pointer
 
-FILES = PDFTextExtraction.c					\
+FILES = PDFUtility.c						\
+		PDFString.c							\
 		PDFFileStream.c						\
-		PDFLex.c
+		PDFLex.c							\
+		PDFTextExtraction.c
 
 
 

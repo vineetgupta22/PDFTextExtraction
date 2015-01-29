@@ -23,8 +23,10 @@
 
 
 	/***************************** Starting Prototypes ********************/
+	void pdf_file_version(pdf_document *doc);
 	void pdf_init_document(pdf_document *doc);
 	pdf_document *pdf_new_document(pdf_stream *file);
+	void pdf_check_start_overheads(pdf_document *doc);
 	PDFExport void PDFAPI PDFTextExtraction(const char *name);
 	/***************************** Ending Prototypes **********************/
 
@@ -68,7 +70,43 @@
 		return doc;
 	}
 
+
+	void pdf_check_start_overheads(pdf_document *doc){
+		int i=0;
+
+		pdf_seek(doc->file, 0, PDFSEEK_SET);
+
+		while (pdf_iswhite(pdf_peek_byte(doc->file))){
+			pdf_read_byte(doc->file);
+			i++;
+		}
+
+		doc->overhead=i;
+	}
+
+
+	void pdf_file_version(pdf_document *doc){
+		//Before Reading file version sometimes it happens that the file
+		//doesn't start with  required %%PDF tag thus he have to check
+		//the starting overheads
+		pdf_check_start_overheads(doc);
+
+		char buf[20];
+
+		pdf_read_line(doc->file, buf, sizeof buf);
+		if (memcmp(buf, "%PDF-", 5) != 0){
+			printf("cannot recognize version marker\n");
+			exit(0);
+		}
+
+		doc->version = (int)(10 * (pdf_atof(buf+5) + 0.05));
+	}
+
+
 	void pdf_init_document(pdf_document *doc){
+		//First of all we need to set the pdf version
+		pdf_file_version(doc);
+
 		//Starting the Reading of PDF File
 		if ( doc ){
 			printf("Started Reading of PDF File\n\n");

@@ -76,6 +76,13 @@
 			#include<fcntl.h>
 		#endif
 
+		/**
+		*	standard symbolic constants and types
+		**/
+		#ifdef HAVE_UNISTD_H
+			#include<unistd.h>
+		#endif
+
 		//Defined Macros
 		#ifndef _PDFTextExtractionMacros_
 			#include<PDFMacros.h>

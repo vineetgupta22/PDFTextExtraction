@@ -51,6 +51,8 @@
 			unsigned char 		buffer[4096];
 		};
 
+		typedef int (pdf_stream_next)(pdf_stream *stm, int max);
+		typedef	void (pdf_stream_seek)(pdf_stream *stm, int offset, int where);
 
 		/**
 		*	@struct		:		PDFTextExtraction_Stream_Structure
@@ -68,6 +70,8 @@
 			unsigned char 				*rp;
 			unsigned char				*wp;
 			void 						*state;
+			pdf_stream_seek				*seek;
+			pdf_stream_next 			*next;
 		};
 
 		//Endling of alignment

@@ -37,10 +37,32 @@
 		*	all the structures, file, xref, object and all other things
 		**/
 		struct PDFTextExtraction_Document_Structure{
+			/**
+			*	@var		:			file
+			*	@brief		:			Pointer to PDF File Stream
+			**/
 			pdf_stream 					*file;
+
+			/**
+			*	@var		:			lexbuf
+			*	@brief		:			used for token and lex elements
+			**/
 			pdf_lexbuf_large			lexbuf;
+
+			/**
+			*	@var		:			overhead
+			*	@brief		:			Overhead bytes in File starting
+			**/
+			int							overhead;
+
+			/**
+			*	@var		:			version
+			*	@brief		:			Version of PDF File
+			**/
+			int							version;
 		};
 
+		extern int errno;
 
 		//Endling of alignment
 		#pragma		pack(pop)
