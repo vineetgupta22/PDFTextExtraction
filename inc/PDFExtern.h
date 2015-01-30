@@ -33,6 +33,7 @@
 
 
 		//Function defined under src/PDFFileStream.c
+		extern int pdf_tell(pdf_stream *stm);
 		extern int pdf_read_byte(pdf_stream *stm);
 		extern int pdf_peek_byte(pdf_stream *stm);
 		extern int pdf_next(pdf_stream *stm, int n);
@@ -40,6 +41,7 @@
 		extern pdf_stream *pdf_keep_stream(pdf_stream *stm);
 		extern void pdf_read_line(pdf_stream *stm, char *mem, int n);
 		extern void pdf_seek(pdf_stream *stm, int offset, int whence);
+		extern int pdf_read(pdf_stream *stm, unsigned char *buf, int len);
 
 
 		//Function defined under src/PDFLex.c
@@ -52,6 +54,10 @@
 
 		//Functions defined under src/PDFString.c
 		extern float pdf_atof(const char *s);
+
+
+		//Functions defined user src/PDFXref.c
+		extern void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf);
 
 		//Endling of alignment
 		#pragma		pack(pop)

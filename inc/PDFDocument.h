@@ -60,6 +60,18 @@
 			*	@brief		:			Version of PDF File
 			**/
 			int							version;
+
+			/**
+			*	@var		:			FileSize
+			*	@brief		:			File Size of Input PDF File
+			**/
+			int							FileSize;
+
+			/**
+			*	@var		:			startxref
+			*	@brief		:			offset of xref
+			**/
+			int							startxref;
 		};
 
 		extern int errno;

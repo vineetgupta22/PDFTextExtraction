@@ -107,10 +107,8 @@
 		//First of all we need to set the pdf version
 		pdf_file_version(doc);
 
-		//Starting the Reading of PDF File
-		if ( doc ){
-			printf("Started Reading of PDF File\n\n");
-		}
+		//Sending to load the xref sections of pdf file
+		pdf_load_xref(doc, &doc->lexbuf.base);
 	}
 
 	C_MODE_END

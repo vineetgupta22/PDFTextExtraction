@@ -29,9 +29,11 @@
 	int pdf_peek_byte(pdf_stream *stm);
 	int pdf_next(pdf_stream *stm, int n);
 	pdf_stream *pdf_new_stream(void *state);
+	int pdf_available(pdf_stream *stm, int max);
 	pdf_stream *pdf_open_file(const char *name);
 	pdf_stream *pdf_keep_stream(pdf_stream *stm);
 	void pdf_read_line(pdf_stream *stm, char *mem, int n);
+	int pdf_read(pdf_stream *stm, unsigned char *buf, int len);
 	void pdf_seek_file(pdf_stream *stm, int offset, int whence);
 	/***************************** Ending Prototypes **********************/
 
@@ -221,5 +223,69 @@
 			*s = '\0';
 	}
 
+	/**
+	*	@fn		:				pdf_available(pdf_stream *stm, int max)
+	*	@param	[in]	strm	PDF stream holding file descriptors
+	*	@param	[in]	max		Number of bytes avaiable to read
+	*	@brief	:				Returns the number of bytes immediately available
+	*	between the read and write pointers. This number is guaranteed only to be 0
+	*	if we have hit EOF. The number of bytes returned here need have
+	*	no relation to max (could be larger, could be smaller).
+	**/
+	int pdf_available(pdf_stream *stm, int max){
+		//available length
+		int len = stm->wp - stm->rp;
+		int c = EOF;
+
+		if (len){
+			return len;
+		}
+
+		//Loading the stream
+		c = stm->next(stm, max);
+
+		if (c == EOF){
+			stm->eof=1;
+			return 0;
+		}
+
+		stm->rp--;
+
+		//Bytes available
+		return stm->wp - stm->rp;
+	}
+
+
+
+	int pdf_read(pdf_stream *stm, unsigned char *buf, int len){
+		int count, n;
+
+		count = 0;
+
+		//loop for reading bytes
+		do{
+			n = pdf_available(stm, len);
+			if (n > len){
+				//decreasing the number of bytes required
+				n = len;
+			}
+
+			//No bytes are available
+			if (n == 0){
+				break;
+			}
+
+			//copy the buffer from input to output
+			memcpy(buf, stm->rp, (size_t)n);
+
+			//increasing the length count buffer
+			stm->rp += n;
+			buf += n;
+			count += n;
+			len -= n;
+		}while (len > 0);
+
+		return count;
+	}
 
 	C_MODE_END
