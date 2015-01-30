@@ -13,14 +13,14 @@
 **/
 
 /**
-*	@file		:	PDFTextExtractionExtern.h
+*	@file		:	PDFExtern.h
 *	@brief		:	External Functions
 **/
 
 	#ifndef		_PDFTextExtractionExtern_
 		/**
-		*	@def	:	_PDFTextExtractionExtern_
-		*	@brief	:	Header Including Parameter for Only Once.
+		*	@def		_PDFTextExtractionExtern_
+		*	@brief		Header Including Parameter for Only Once.
 		**/
 		#define			_PDFTextExtractionExtern_
 

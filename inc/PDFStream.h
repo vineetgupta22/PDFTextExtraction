@@ -19,8 +19,8 @@
 
 	#ifndef		_PDFStream_
 		/**
-		*	@def	:	_PDFStream_
-		*	@brief	:	Header Including Parameter for Only Once.
+		*	@def		_PDFStream_
+		*	@brief		Header Including Parameter for Only Once.
 		**/
 		#define			_PDFStream_
 

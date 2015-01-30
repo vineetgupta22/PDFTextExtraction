@@ -17,12 +17,12 @@
 *	@brief		:	Including Object Structures etc.
 **/
 
-	#ifndef		_PDFTextExtractionAll_
+	#ifndef		_PDFAll_
 		/**
-		*	@def	:	__PDFTextExtraction__
-		*	@brief	:	Header Including Parameter for Only Once.
+		*	@def		_PDFAll_
+		*	@brief		Header Including Parameter for Only Once.
 		**/
-		#define			_PDFTextExtractionAll_
+		#define			_PDFAll_
 
 		//doing alignment of 4 bytes as required by some systems
 		#pragma		pack(push, 4)

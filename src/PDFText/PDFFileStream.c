@@ -1,20 +1,6 @@
 /**
-*	Copyright (c) 2008-2015, Cee Emm Infotech and/or its affiliates.
-*	All rights are reserved.
-*
-*	Program Name:		PDFTextExtraction
-*	Program Owner:		Cee Emm Infotech
-*	Chief Developer:	Vineet Gupta
-*
-*	contact: vineetgupta22@gmail.com
-*	Address: Cee Emm Infotech, 605, Sector 10D, Chandgiarh [INDIA]
-*
-**/
-
-
-/**
-*	@file		:	PDFFileStream.c
-*	@brief		:	Functions Realting to Streams
+*	@file			PDFFileStream.c
+*	@brief			Functions Relating to Streams
 **/
 
 	#include <PDFTextExtraction.h>
@@ -41,6 +27,15 @@
 	/***************************** Global Variables ********************/
 
 
+	/**
+	*	@fn			pdf_stream *pdf_open_file(const char *name)
+	*	@param[in]	name	Name of the File
+	*	@result		Return the pdf_stream structure for doing input and output
+	*	on File Provided.
+	*	@brief		The Function opens the Input file as binary read only mode
+	*	and return the structure of pdf_stream used for read stream and process
+	*	file according to references provided in the file.
+	**/
 	pdf_stream *pdf_open_file(const char *name){
 		int fd;
 
@@ -51,6 +46,15 @@
 	}
 
 
+	/**
+	*	@fn			pdf_stream *pdf_new_stream(void *state)
+	*	@param[in]	state	State of File
+	*	@result		Return the pdf_stream structure for doing IO
+	*
+	*	@brief		Function creates the new pdf_stream on provided state.
+	*	It is important function and it links the other functions such as
+	*	seek, next etc. with pdf stream structure.
+	**/
 	pdf_stream *pdf_new_stream(void *state){
 		pdf_stream *stm;
 
@@ -70,6 +74,16 @@
 	}
 
 
+	/**
+	*	@fn			pdf_stream *pdf_fd(int fd)
+	*	@param[in]	fd	File Descriptor
+	*	@result		Return the pdf_stream structure for doing IO
+	*
+	*	@brief		Function received the file descriptor and assign it to the
+	*	state structure. The stream will take ownership of the file descriptor,
+	*	so it may not be modified or closed after the call to pdf_fd. When the
+	*	stream is closed it will also close the file descriptor.
+	**/
 	pdf_stream *pdf_fd(int fd){
 		pdf_file_stream *state;
 
@@ -84,6 +98,13 @@
 	}
 
 
+	/**
+	*	@fn			pdf_stream *pdf_keep_stream(pdf_stream *stm)
+	*	@param[in]	stm		PDF stream
+	*	@result		After keeping pdf_stream it return kept stream
+	*	@brief		Required to make sure the file descriptor not to
+	*	be closed.
+	**/
 	pdf_stream *pdf_keep_stream(pdf_stream *stm){
 		if (stm)
 			stm->refs ++;
@@ -91,6 +112,13 @@
 	}
 
 
+	/**
+	*	@fn						pdf_seek_file(pdf_stream *stm, int offset, int whence)
+	*	@param	[in]	stm		PDF stream to read from
+	*	@param	[in]	offset	The offset to seek to
+	*	@param	[in]	whence	From where the offset is measured
+	*	@brief					It does the real seeking on the file stream
+	**/
 	void pdf_seek_file(pdf_stream *stm, int offset, int whence){
 		pdf_file_stream *state = stm->state;
 
@@ -107,11 +135,24 @@
 	}
 
 
+	/**
+	*	@fn						pdf_tell(pdf_stream *stm)
+	*	@param	[in]	stm		PDF stream to read from
+	*	@return					Position
+	*	@brief					The function return the current reading
+	*	position within a stream
+	**/
 	int pdf_tell(pdf_stream *stm){
 		return stm->pos - (stm->wp - stm->rp);
 	}
 
 
+	/**
+	*	@fn						pdf_peek_byte(pdf_stream *stm)
+	*	@param	[in]	stm		PDF stream to read from
+	*	@brief			Function Read the current byte from the stm and reset
+	*	position to earlier position of the stream.
+	**/
 	int pdf_peek_byte(pdf_stream *stm){
 		int c;
 
@@ -129,6 +170,11 @@
 	}
 
 
+	/**
+	*	@fn						pdf_read_byte(pdf_stream *stm)
+	*	@param	[in]	stm		PDF stream to read from
+	*	@brief			Function Read the current byte from the stm
+	**/
 	int pdf_read_byte(pdf_stream *stm){
 		int c = EOF;
 
@@ -168,6 +214,14 @@
 	}
 
 
+	/**
+	*	@fn						pdf_seek(pdf_stream *stm, int offset, int whence)
+	*	@param	[in]	stm		PDF stream to read from
+	*	@param	[in]	offset	The offset to seek to
+	*	@param	[in]	whence	From where the offset is measured
+	*	@brief					It sets the cursor in file to the desired location.
+	*	For more information see fseek
+	**/
 	void pdf_seek(pdf_stream *stm, int offset, int whence){
 		/* Reset bit reading */
 		stm->avail = 0;
@@ -201,6 +255,15 @@
 	}
 
 
+	/**
+	*	@fn						pdf_read_line(pdf_stream *stm, char *mem, int n)
+	*	@param	[in]	stm		PDF stream to read from
+	*	@param	[in]	mem		The data block to read into
+	*	@param	[in]	n		The length of the data block (in bytes)
+	*	@brief					Attempt to read a stream into a buffer.  If
+	*	truncated is NULL. Otherwise does not throw exceptions in the case
+	*	of failure, but instead sets a EOF flag.
+	**/
 	void pdf_read_line(pdf_stream *stm, char *mem, int n){
 		char *s = mem;
 		int c = EOF;
@@ -223,11 +286,12 @@
 			*s = '\0';
 	}
 
+
 	/**
-	*	@fn		:				pdf_available(pdf_stream *stm, int max)
-	*	@param	[in]	strm	PDF stream holding file descriptors
+	*	@fn						pdf_available(pdf_stream *stm, int max)
+	*	@param	[in]	stm		PDF stream holding file descriptors
 	*	@param	[in]	max		Number of bytes avaiable to read
-	*	@brief	:				Returns the number of bytes immediately available
+	*	@brief					Returns the number of bytes immediately available
 	*	between the read and write pointers. This number is guaranteed only to be 0
 	*	if we have hit EOF. The number of bytes returned here need have
 	*	no relation to max (could be larger, could be smaller).
@@ -257,6 +321,17 @@
 
 
 
+	/**
+	*	@fn						pdf_read(pdf_stream *stm, unsigned char *buf, int len)
+	*	@param	[in]	stm		PDF stream to read from
+	*	@param	[in]	buf		The data block to read into
+	*	@param	[in]	len		The length of the data block (in bytes)
+	*	@return					Returns the number of bytes read.
+	*	@brief					Returns the number of bytes immediately available
+	*	between the read and write pointers. This number is guaranteed only to be 0
+	*	if we have hit EOF. The number of bytes returned here need have no
+	*	relation to max (could not be larger, could be smaller).
+	**/
 	int pdf_read(pdf_stream *stm, unsigned char *buf, int len){
 		int count, n;
 

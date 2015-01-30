@@ -13,14 +13,14 @@
 **/
 
 /**
-*	@file		:	PDFTextExtractionMacros.h
+*	@file		:	PDFMacros.h
 *	@brief		:	Macros used in Project
 **/
 
 	#ifndef		_PDFTextExtractionMacros_
 		/**
-		*	@def	:	_PDFTextExtractionMacros_
-		*	@brief	:	Header Including Parameter for Only Once.
+		*	@def		_PDFTextExtractionMacros_
+		*	@brief		Header Including Parameter for Only Once.
 		**/
 		#define			_PDFTextExtractionMacros_
 
@@ -29,8 +29,8 @@
 		
 		#ifndef PDFUnused 
 			/**
-			*	@def		:		PDFUnused
-			*	@brief		:		In case Variables are not used in Function then
+			*	@def				PDFUnused
+			*	@brief				In case Variables are not used in Function then
 			*	they must be defined as PDFUnused
 			**/
 			#define		PDFUnused			__attribute__ ((unused))
@@ -256,16 +256,16 @@
 
 		#ifndef		PDFIsFolder
 			/**
-			*	@def		:		PDFIsFolder
-			*	@brief		:		Checking the Directory Entry is Folder
+			*	@def				PDFIsFolder
+			*	@brief				Checking the Directory Entry is Folder
 			**/
 			#define		PDFIsFolder			0x4
 		#endif
 
 		#ifndef		PDFIsFile
 			/**
-			*	@def		:		PDFIsFile
-			*	@brief		:		Checking the Directory Entry is File or not
+			*	@def				PDFIsFile
+			*	@brief				Checking the Directory Entry is File or not
 			**/
 			#define		PDFIsFile			0x8
 		#endif

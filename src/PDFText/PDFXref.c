@@ -23,20 +23,82 @@
 
 
 	/***************************** Starting Prototypes ********************/
+	void pdf_next_xref(pdf_document *doc);
 	void pdf_load_startxref(pdf_document *doc);
 	void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf);
+	void pdf_load_xref_last(pdf_document *doc, int offset, pdf_lexbuf *buf, int ReadPrevious);
+	int pdf_load_xref_section(pdf_document *doc, int offset, pdf_lexbuf *buf, offsets_list *offsets);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
+	static int offsets_list_left;
 	/***************************** Global Variables ********************/
 
 
-	void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf PDFUnused){
+	void pdf_next_xref(pdf_document *doc){
+		if ( offsets_list_left ){
+			pdf_xref *xref;
+			if ( offsets_list_left == 10 ){
+				doc->xref_sections = (pdf_xref *)malloc(sizeof(pdf_xref)*10);
+				memset(doc->xref_sections,0, sizeof(pdf_xref)*10);
+
+				//Adding Memory allocation size
+				MallocSize+=(sizeof(pdf_xref)*10);
+			}
+			doc->total_xref_sections++;
+			xref = &doc->xref_sections[doc->total_xref_sections - 1];
+			xref->subsec = NULL;
+			xref->objects = 0;
+			xref->trailer = NULL;
+		}else{
+			printf("Maximum Numbers of sections read");
+			exit(0);
+		}
+		offsets_list_left--;
+	}
+
+	void pdf_load_xref_last(pdf_document *doc, int offset, pdf_lexbuf *buf, int ReadPrevious){
+		offsets_list all_offsets;
+
+		//Section Left
+		offsets_list_left=10;
+
+		//Currently we have length
+		all_offsets.len = 0;
+
+		//Maximum Number of list we can store
+		all_offsets.max=10;
+
+		all_offsets.list	=	(int *)malloc(sizeof(int)*(unsigned)all_offsets.max);
+		memset(all_offsets.list, 0,  (sizeof(int)*((unsigned)all_offsets.max)));
+
+		//Adding Memory allocation size
+		MallocSize+=(sizeof(int)*10);
+
+		while ( offset ){
+			pdf_next_xref(doc);
+			offset = pdf_load_xref_section(doc, offset, buf, &all_offsets);
+			if ( ! ReadPrevious ){
+				break;
+			}
+		}
+
+		//Freeing the all offsets lists
+		free(all_offsets.list);
+
+		//Removing Memory allocation size
+		MallocSize-=(sizeof(int)*10);
+	}
+
+
+	void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf){
 		//Before loading of xref section its import of read
 		//startxref position which is described at the end of file
 		pdf_load_startxref(doc);
 
-		printf("location of xref = %d\n", doc->startxref);
+		//We have not the starting point of startxref not we need to
+		//read the startxref sections
+		pdf_load_xref_last(doc, doc->startxref, buf, 1);
 	}
 
 
@@ -85,6 +147,13 @@
 
 		printf("cannot find startxref\n");
 		exit(0);
+	}
+
+
+	int pdf_load_xref_section(pdf_document *doc PDFUnused, int offset PDFUnused, pdf_lexbuf *buf PDFUnused, offsets_list *offsets PDFUnused){
+
+		//temprory
+		return 0;
 	}
 
 	C_MODE_END

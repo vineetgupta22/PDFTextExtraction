@@ -1,20 +1,6 @@
 /**
-*	Copyright (c) 2008-2015, Cee Emm Infotech and/or its affiliates.
-*	All rights are reserved.
-*
-*	Program Name:		PDFTextExtraction
-*	Program Owner:		Cee Emm Infotech
-*	Chief Developer:	Vineet Gupta
-*
-*	contact: vineetgupta22@gmail.com
-*	Address: Cee Emm Infotech, 605, Sector 10D, Chandgiarh [INDIA]
-*
-**/
-
-
-/**
-*	@file		:	PDFTextExtraction.c
-*	@brief		:	Library of PDF Text Extration line by line
+*	@file			PDFTextExtraction.c
+*	@brief			Library of PDF Text Extraction line by line
 **/
 
 	#include <PDFTextExtraction.h>
@@ -35,6 +21,13 @@
 	/***************************** Global Variables ********************/
 
 
+	/**
+	*	@fn			void PDFTextExtraction(const char *name)
+	*	@param[in]	name	Name of File
+	*	@brief		This is the library function which is call to start the
+	*	processing of provided file name. It will read entire file Block by
+	*	Block and store the extracted Text Line by Line in structure.
+	**/
 	PDFExport void PDFAPI PDFTextExtraction(const char *name){
 		pdf_stream *file = NULL;
 		pdf_document *doc;
@@ -56,6 +49,12 @@
 
 
 
+	/**
+	*	@fn					pdf_new_document(pdf_stream *file)
+	*	@param[in]	file	PDF File Stream
+	*	@brief		Allocation of Memory for storing the elements of PDF File
+	*	which were found on reading.
+	**/
 	pdf_document *pdf_new_document(pdf_stream *file){
 		pdf_document *doc=NULL;
 
@@ -71,6 +70,14 @@
 	}
 
 
+	/**
+	*	@fn					pdf_check_start_overheads(pdf_document *doc)
+	*	@param[in]	doc		PDF Document to be filled
+	*	@brief		In our case the PDF files are downloaded from Internet
+	*	by CURL but while saving the document it also save some unnecessary
+	*	white spaces. Due to these bytes the offset provided in PDF document
+	*	doesn't reach at desired location and require to add white spaces.
+	**/
 	void pdf_check_start_overheads(pdf_document *doc){
 		int i=0;
 
@@ -85,6 +92,11 @@
 	}
 
 
+	/**
+	*	@fn					pdf_file_version(pdf_document *doc)
+	*	@param[in]	doc		PDF Document to be filled
+	*	@brief		Reads the PDF File version from the PDF File.
+	**/
 	void pdf_file_version(pdf_document *doc){
 		//Before Reading file version sometimes it happens that the file
 		//doesn't start with  required %%PDF tag thus he have to check
@@ -103,6 +115,12 @@
 	}
 
 
+	/**
+	*	@fn					pdf_init_document(pdf_document *doc)
+	*	@param[in]	doc		PDF Document to be filled
+	*	@brief		Starts the reading process of PDF File and fills the
+	*	document structure according to the things found in file.
+	**/
 	void pdf_init_document(pdf_document *doc){
 		//First of all we need to set the pdf version
 		pdf_file_version(doc);
@@ -110,5 +128,6 @@
 		//Sending to load the xref sections of pdf file
 		pdf_load_xref(doc, &doc->lexbuf.base);
 	}
+
 
 	C_MODE_END

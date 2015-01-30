@@ -19,8 +19,8 @@
 
 	#ifndef		_PDFLex_
 		/**
-		*	@def	:	_PDFLex_
-		*	@brief	:	Header Including Parameter for Only Once.
+		*	@def		_PDFLex_
+		*	@brief		Header Including Parameter for Only Once.
 		**/
 		#define			_PDFLex_
 

@@ -17,10 +17,42 @@
 *	@brief		:	Header File
 **/
 
+
+	/**
+	* 	@mainpage 			PDF Text Extraction
+	*
+	*	@section	Intro	Introduction
+	*						The Project  is  the Internal Part of Project other
+	*	Major  Product. The  program  is  used  for extraction of Text from PDF
+	*	Files. Since there are many Libraries available in the Open Source  but
+	*	none is describing or doing the extraction as LINE by LINE. Since,  the
+	*	extraction  of  text  LINE by LINE is not available in Open Source thus
+	*	created project to others to do things according to there needs.
+	*
+	*	Cross Platform
+	*	==============
+	*	We are now creating binaries to support three main OS i.e.Windows, Linux
+	*	and Mac. We have created this project on CYGWIN with the help of GNU GCC
+	*	Compiler using  AutoTool  Kit to support the cross platform development.
+	*	For  windows  separate DLL file is created and for Linux and Mac Shared
+	*	Library is created.
+	*
+	*	Compiling
+	*	=========
+	*	As we are using AutoTools thus a file name bootstrap created to configure
+	*	the project.  As  other only provide configure file and hide configure.ac
+	*	file but we have included the configure.ac to describe or to tell how to
+	*	make your project easily cross platform completable.
+	*
+	* 	@author 	Vineet Gupta, 	vineetgupta22@gmail.com
+	*	Address: Cee Emm Infotech, 605, Sector 10D, Chandgiarh [INDIA]
+	**/
+
+
 	#ifndef		__PDFTextExtraction__
 		/**
-		*	@def	:	__PDFTextExtraction__
-		*	@brief	:	Header Including Parameter for Only Once.
+		*	@def		__PDFTextExtraction__
+		*	@brief		Header Including Parameter for Only Once.
 		**/
 		#define			__PDFTextExtraction__
 

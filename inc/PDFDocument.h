@@ -17,19 +17,57 @@
 *	@brief		:	PDF Document Structure
 **/
 
-	#ifndef		_PDFDocument_
+	#ifndef		_PDFTextDocument_
 		/**
-		*	@def	:	_PDFDocument_
-		*	@brief	:	Header Including Parameter for Only Once.
+		*	@def		_PDFTextDocument_
+		*	@brief		Header Including Parameter for Only Once.
 		**/
-		#define			_PDFDocument_
+		#define			_PDFTextDocument_
 
 		//doing alignment of 4 bytes as required by some systems
 		#pragma		pack(push, 4)
 
 
 		typedef		struct PDFTextExtraction_Document_Structure				pdf_document;
+		typedef 	struct PDFTextExtraction_Documents_Object 				pdf_obj;
+		typedef 	struct PDFTextExtraction_Documents_Xref_Sections 		pdf_xref;
+		typedef 	struct PDFTextExtraction_Documents_Xref_SubSections		pdf_xref_subsec;
+		typedef 	struct PDFTextExtraction_Documents_Offsets_list			offsets_list;
 
+
+		/**
+		*	@struct		:		PDFTextExtraction_Documents_Xref_Sections
+		*	@brief		:		Structure to store xref sections
+		**/
+		struct PDFTextExtraction_Documents_Xref_Sections{
+			/**
+			*	@var		:			objects
+			*	@brief		:			Total Number of Object found in PDF
+			**/
+			int							objects;
+
+			/**
+			*	@var		:			subsec
+			*	@brief		:			For Xref Sub Section
+			**/
+			pdf_xref_subsec				*subsec;
+
+			/**
+			*	@var		:			trailer
+			*	@brief		:			For trailer written below xref section
+			**/
+			pdf_obj						*trailer;
+		};
+
+		/**
+		*	@struct		:		PDFTextExtraction_Documents_Offsets_list
+		*	@brief		:		List of offsets found in Documents
+		**/
+		struct PDFTextExtraction_Documents_Offsets_list{
+			int					max;
+			int					len;
+			int					*list;
+		};
 
 		/**
 		*	@struct		:		PDFTextExtraction_Document_Structure
@@ -72,6 +110,18 @@
 			*	@brief		:			offset of xref
 			**/
 			int							startxref;
+
+			/**
+			*	@var		:			xref_sections
+			*	@brief		:			xref sections found in Document
+			**/
+			pdf_xref 					*xref_sections;
+
+			/**
+			*	@var		:			total_xref_sections
+			*	@brief		:			Total xref section in PDF File
+			**/
+			int							total_xref_sections;
 		};
 
 		extern int errno;
