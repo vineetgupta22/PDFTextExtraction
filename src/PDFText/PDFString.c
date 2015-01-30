@@ -27,6 +27,7 @@
 
 	/***************************** Starting Prototypes ********************/
 	float pdf_atof(const char *s);
+	char *pdf_strsep(char **str, const char *delim);
 	double pdf_clampd(double d, double min, double max);
 	/***************************** Ending Prototypes **********************/
 
@@ -53,5 +54,23 @@
 		return (float)d;
 	}
 
+
+	char *pdf_strsep(char **str, const char *delim){
+		char *ret = *str;
+
+		if (!ret){
+			return NULL;
+		}
+
+		if ((*str = strpbrk(*str, delim)) != NULL){
+			*((*str)++) = '\0';
+		}
+
+		return ret;
+	}
+
+	int pdf_atoi(const char *s){
+		return atoi(s);
+	}
 
 	C_MODE_END

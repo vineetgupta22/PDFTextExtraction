@@ -30,6 +30,13 @@
 	/***************************** Global Variables ********************/
 
 
+	/**
+	*	@fn						pdf_lexbuf_init(pdf_lexbuf *lex_buffer, int size)
+	*	@param	[in]	lex_buffer		PDF Lex Buffer Structure
+	*	@param	[in]	size			Maximum size of buffer to hold
+	*	@brief					Initialization of lex buffer structure for reading
+	*	and parse the elements of PDF.
+	**/
 	void pdf_lexbuf_init(pdf_lexbuf *lex_buffer, int size){
 		lex_buffer->size=size;
 		lex_buffer->base_size=size;

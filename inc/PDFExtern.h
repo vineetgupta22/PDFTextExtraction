@@ -53,7 +53,9 @@
 
 
 		//Functions defined under src/PDFString.c
+		extern int pdf_atoi(const char *s);
 		extern float pdf_atof(const char *s);
+		extern char *pdf_strsep(char **str, const char *delim);
 
 
 		//Functions defined user src/PDFXref.c

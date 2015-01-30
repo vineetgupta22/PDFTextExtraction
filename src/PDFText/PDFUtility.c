@@ -30,6 +30,13 @@
 	/***************************** Global Variables ********************/
 
 
+	/**
+	*	@fn					pdf_iswhite(int ch)
+	*	@param[in]	ch		Name of the File
+	*	@result			Return the character is PDF White Space true or false
+	*	@brief		Checking the provided char is white space according to the
+	*	documentation of PDF.
+	**/
 	int pdf_iswhite(int ch){
 		return 	ch == '\000' || ch == '\011' ||
 				ch == '\012' || ch == '\014' ||

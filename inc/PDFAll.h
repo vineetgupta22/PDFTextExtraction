@@ -39,6 +39,11 @@
 			#include <PDFLex.h>
 		#endif
 
+		//Including Lex Structures
+		#ifndef		_PDFObjects_
+			#include <PDFObjects.h>
+		#endif
+
 		//Including document structures
 		#ifndef		_PDFDocument_
 			#include <PDFDocument.h>

@@ -56,7 +56,7 @@
 			*	@var		:			trailer
 			*	@brief		:			For trailer written below xref section
 			**/
-			pdf_obj						*trailer;
+			pdf_trailer					*trailer;
 		};
 
 		/**
