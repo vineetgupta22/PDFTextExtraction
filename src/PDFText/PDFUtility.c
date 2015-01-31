@@ -32,15 +32,16 @@
 
 	/**
 	*	@fn					pdf_iswhite(int ch)
-	*	@param[in]	ch		Name of the File
-	*	@result			Return the character is PDF White Space true or false
-	*	@brief		Checking the provided char is white space according to the
-	*	documentation of PDF.
+	*	@param[in]	ch		Character is white space or not
+	*	@result				Return the character is PDF White Space true or false
+	*	@brief				Function is used Check whether the provided character
+	*	is a white space character or not. White Space Characters are described in
+	*	PDF Manual.
 	**/
 	int pdf_iswhite(int ch){
-		return 	ch == '\000' || ch == '\011' ||
-				ch == '\012' || ch == '\014' ||
-				ch == '\015' || ch == '\040';
+		return (ch == 0x00 || ch == 0x09 || ch == 0x0A ||
+				ch == 0x0C || ch == 0x0D || ch == 0x20
+		);
 	}
 
 

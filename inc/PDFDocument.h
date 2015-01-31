@@ -29,11 +29,93 @@
 
 
 		typedef		struct PDFTextExtraction_Document_Structure				pdf_document;
+		typedef		struct PDFTextExtraction_Document_Buffer				pdf_buffer;
 		typedef 	struct PDFTextExtraction_Documents_Object 				pdf_obj;
 		typedef 	struct PDFTextExtraction_Documents_Xref_Sections 		pdf_xref;
+		typedef 	struct PDFTextExtraction_Documents_Xref_Entry			pdf_xref_entry;
 		typedef 	struct PDFTextExtraction_Documents_Xref_SubSections		pdf_xref_subsec;
 		typedef 	struct PDFTextExtraction_Documents_Offsets_list			offsets_list;
 
+
+
+		/**
+		*	@struct		:		PDFTextExtraction_Documents_Xref_SubSections
+		*	@brief		:		Structure to store xref sub sections entry
+		**/
+		struct PDFTextExtraction_Documents_Xref_Entry{
+			/**
+			*	@var		:			type
+			*	@brief		:			0=unset (f)ree i(n)use (o)bjstm
+			**/
+			char 						type;
+
+			/**
+			*	@var		:			flags
+			*	@brief		:			bit 0 = marked
+			**/
+			unsigned char 				flags;
+
+			/**
+			*	@var		:			gen
+			*	@brief		:			for generation/objstm index
+			**/
+			unsigned short 				gen;
+
+			/**
+			*	@var		:			offsets
+			*	@brief		:			file offset / objstm object number
+			**/
+			int 						offsets;
+
+			/**
+			*	@var		:			stream_offset
+			*	@brief		:			on-disk stream
+			**/
+			int 						stream_offset;
+			/**
+			*	@var		:			stm_buf
+			*	@brief		:			in-memory stream (for updated objects)
+			**/
+			pdf_buffer 					*stm_buf;
+
+			/**
+			*	@var		:			obj
+			*	@brief		:			stored/cached object
+			**/
+			pdf_obj 					*obj;
+
+		};
+
+
+		/**
+		*	@struct		:		PDFTextExtraction_Documents_Xref_SubSections
+		*	@brief		:		Structure to store xref sub sections
+		**/
+		struct PDFTextExtraction_Documents_Xref_SubSections{
+			/**
+			*	@var		:			start
+			*	@brief		:			Starting Number of xref subsection
+			**/
+			int							start;
+
+			/**
+			*	@var		:			len
+			*	@brief		:			Total number of entries in xref entry table
+			**/
+			int							len;
+
+			/**
+			*	@var		:			table
+			*	@brief		:			Entries of xref entry
+			**/
+			pdf_xref_entry 				*table;
+
+			/**
+			*	@var		:			next
+			*	@brief		:			Pointer to next xref sub section
+			**/
+			pdf_xref_subsec 			*next;
+		};
 
 		/**
 		*	@struct		:		PDFTextExtraction_Documents_Xref_Sections
@@ -106,10 +188,28 @@
 			int							FileSize;
 
 			/**
+			*	@var		:			binary_data
+			*	@brief		:			PDF File Contains binary data or not
+			**/
+			int							binary_data;
+
+			/**
 			*	@var		:			startxref
 			*	@brief		:			offset of xref
 			**/
 			int							startxref;
+
+			/**
+			*	@var		:			max_xref_len
+			*	@brief		:			Maximum length of xref section
+			**/
+			int 						max_xref_len;
+
+			/**
+			*	@var		:			xref_index
+			*	@brief		:			xref index found in Document
+			**/
+			int 						*xref_index;
 
 			/**
 			*	@var		:			xref_sections

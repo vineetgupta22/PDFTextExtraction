@@ -9,6 +9,7 @@
 
 
 	/***************************** Starting Prototypes ********************/
+	void pdf_info(pdf_document *doc);
 	void pdf_file_version(pdf_document *doc);
 	void pdf_init_document(pdf_document *doc);
 	pdf_document *pdf_new_document(pdf_stream *file);
@@ -20,6 +21,22 @@
 	unsigned long MallocSize;
 	/***************************** Global Variables ********************/
 
+	/**
+	*	@fn			pdf_info(pdf_document *doc)
+	*	@param[in]	name	Name of File
+	*	@brief		Information Found in PDF File
+	**/
+	void pdf_info(pdf_document *doc){
+		printf("Starting overheads in File \t\t\t= \t%d\n", doc->overhead);
+		printf("Version of Document \t\t\t\t= \t%d\n", doc->version);
+		if ( doc->binary_data ){
+			printf("File contains the Binary Data \t\t\t= \ttrue\n");
+		}else{
+			printf("File contains the Binary Data \t\t\t= \tfalse\n");
+		}
+		printf("startxref offset to xref \t\t\t= \t%d\n", doc->startxref);
+		printf("\n\nTotal Memory Allocation but not freed\t\t=\t%lu\n\n", MallocSize);
+	}
 
 	/**
 	*	@fn			void PDFTextExtraction(const char *name)
@@ -44,7 +61,8 @@
 		//Started Reading of document
 		pdf_init_document(doc);
 
-		printf("Total Memory Allocation done=%lu\n\n", MallocSize);
+		//Printing PDF Information
+		pdf_info(doc);
 	}
 
 
@@ -71,60 +89,12 @@
 
 
 	/**
-	*	@fn					pdf_check_start_overheads(pdf_document *doc)
-	*	@param[in]	doc		PDF Document to be filled
-	*	@brief		In our case the PDF files are downloaded from Internet
-	*	by CURL but while saving the document it also save some unnecessary
-	*	white spaces. Due to these bytes the offset provided in PDF document
-	*	doesn't reach at desired location and require to add white spaces.
-	**/
-	void pdf_check_start_overheads(pdf_document *doc){
-		int i=0;
-
-		pdf_seek(doc->file, 0, PDFSEEK_SET);
-
-		while (pdf_iswhite(pdf_peek_byte(doc->file))){
-			pdf_read_byte(doc->file);
-			i++;
-		}
-
-		doc->overhead=i;
-	}
-
-
-	/**
-	*	@fn					pdf_file_version(pdf_document *doc)
-	*	@param[in]	doc		PDF Document to be filled
-	*	@brief		Reads the PDF File version from the PDF File.
-	**/
-	void pdf_file_version(pdf_document *doc){
-		//Before Reading file version sometimes it happens that the file
-		//doesn't start with  required %%PDF tag thus he have to check
-		//the starting overheads
-		pdf_check_start_overheads(doc);
-
-		char buf[20];
-
-		pdf_read_line(doc->file, buf, sizeof buf);
-		if (memcmp(buf, "%PDF-", 5) != 0){
-			printf("cannot recognize version marker\n");
-			exit(0);
-		}
-
-		doc->version = (int)(10 * (pdf_atof(buf+5) + 0.05));
-	}
-
-
-	/**
 	*	@fn					pdf_init_document(pdf_document *doc)
 	*	@param[in]	doc		PDF Document to be filled
 	*	@brief		Starts the reading process of PDF File and fills the
 	*	document structure according to the things found in file.
 	**/
 	void pdf_init_document(pdf_document *doc){
-		//First of all we need to set the pdf version
-		pdf_file_version(doc);
-
 		//Sending to load the xref sections of pdf file
 		pdf_load_xref(doc, &doc->lexbuf.base);
 	}

@@ -43,6 +43,8 @@
 		extern void pdf_seek(pdf_stream *stm, int offset, int whence);
 		extern int pdf_read(pdf_stream *stm, unsigned char *buf, int len);
 
+		//Functions defined in src/PDFTrailer.c
+		int pdf_xref_size_from_trailer(pdf_document *doc, pdf_lexbuf *buf);
 
 		//Function defined under src/PDFLex.c
 		extern void pdf_lexbuf_init(pdf_lexbuf *lex_buffer, int size);
