@@ -27,6 +27,10 @@
 		//doing alignment of 4 bytes as required by some systems
 		#pragma		pack(push, 4)
 
+		#define 		IS_NUMBER 				'+':case'-':case'.':case'0':case'1':case'2':case'3': case'4':case'5':case'6':case'7':case'8':case'9'
+		#define 		IS_WHITE				'\000':case'\011':case'\012':case'\014':case'\015':case'\040'
+		#define 		IS_DELIM 				'(':case')':case'<':case'>':case'[':case']':case'{': case'}':case'/':case'%'
+		#define			pdf_unread_byte(stm)	stm->rp--;
 
 		enum{
 			PDFTextExt_LEXBUF_SMALL = 256,
@@ -95,6 +99,34 @@
 			**/
 			char buffer[PDFTextExt_LEXBUF_LARGE - PDFTextExt_LEXBUF_SMALL];
 		};
+
+		typedef enum{
+			PDF_TOK_ERROR,
+			PDF_TOK_EOF,
+			PDF_TOK_OPEN_ARRAY,
+			PDF_TOK_CLOSE_ARRAY,
+			PDF_TOK_OPEN_DICT,
+			PDF_TOK_CLOSE_DICT,
+			PDF_TOK_OPEN_BRACE,
+			PDF_TOK_CLOSE_BRACE,
+			PDF_TOK_NAME,
+			PDF_TOK_INT,
+			PDF_TOK_REAL,
+			PDF_TOK_STRING,
+			PDF_TOK_KEYWORD,
+			PDF_TOK_R,
+			PDF_TOK_TRUE,
+			PDF_TOK_FALSE,
+			PDF_TOK_NULL,
+			PDF_TOK_OBJ,
+			PDF_TOK_ENDOBJ,
+			PDF_TOK_STREAM,
+			PDF_TOK_ENDSTREAM,
+			PDF_TOK_XREF,
+			PDF_TOK_TRAILER,
+			PDF_TOK_STARTXREF,
+			PDF_NUM_TOKENS
+		} pdf_token;
 
 
 		//Endling of alignment

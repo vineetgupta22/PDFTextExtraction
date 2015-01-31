@@ -117,7 +117,6 @@
 	*	parse the xref section and return
 	**/
 	pdf_trailer *pdf_read_xref(pdf_document *doc, pdf_lexbuf *buf){
-		pdf_trailer *trailer=NULL;
 		int c, offsets, len, i;
 		char *s;
 
@@ -195,7 +194,21 @@
 			}
 		}
 
-		return trailer;
+		pdf_token tok;
+
+		tok = pdf_lex(doc->file, buf);
+		if (tok != PDF_TOK_TRAILER){
+			printf("expected trailer marker\n");
+			exit(0);
+		}
+
+		tok = pdf_lex(doc->file, buf);
+		if (tok != PDF_TOK_OPEN_DICT){
+			printf("expected trailer dictionary");
+			exit(0);
+		}
+
+		return pdf_parse_dict(doc, doc->file, buf);
 	}
 
 
@@ -270,8 +283,8 @@
 		trailer=pdf_read_xref_section(doc, offset, buf);
 
 		if ( ! trailer ){
-			printf("trailer in PDF not found\n");
-			exit(0);
+			//printf("trailer in PDF not found\n");
+			//exit(0);
 		}
 
 		//temprory

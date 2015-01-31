@@ -35,6 +35,15 @@
 			printf("File contains the Binary Data \t\t\t= \tfalse\n");
 		}
 		printf("startxref offset to xref \t\t\t= \t%d\n", doc->startxref);
+		printf("Total xref sections found in document \t\t=\t%d\n", doc->total_xref_sections);
+		printf("Xref Sub Sections Length found in document \t=\t%d\n", doc->max_xref_len);
+		int i, f=0;
+		for(i=0; i<doc->max_xref_len; i++){
+			if ( doc->xref_index[i] > 0 ){
+				f++;
+			}
+		}
+		printf("Xref Sub Sections Offsets filled in document \t=\t%d\n", f);
 		printf("\n\nTotal Memory Allocation but not freed\t\t=\t%lu\n\n", MallocSize);
 	}
 

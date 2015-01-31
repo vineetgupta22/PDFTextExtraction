@@ -48,6 +48,7 @@
 
 		//Function defined under src/PDFLex.c
 		extern void pdf_lexbuf_init(pdf_lexbuf *lex_buffer, int size);
+		extern pdf_token pdf_lex(pdf_stream *f, pdf_lexbuf *buf);
 
 
 		//Functions defined under src/PDFUtility.c
@@ -60,8 +61,11 @@
 		extern char *pdf_strsep(char **str, const char *delim);
 
 
-		//Functions defined user src/PDFXref.c
+		//Functions defined under src/PDFXref.c
 		extern void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf);
+
+		//Functions defined under src/PDFParser.c
+		extern pdf_trailer *pdf_parse_dict(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf);
 
 		//Endling of alignment
 		#pragma		pack(pop)

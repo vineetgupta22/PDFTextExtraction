@@ -15,7 +15,7 @@
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
 
-	int pdf_xref_size_from_trailer(pdf_document *doc, pdf_lexbuf *buf PDFUnused){
+	int pdf_xref_size_from_trailer(pdf_document *doc, pdf_lexbuf *buf){
 		int size=0, c, len, t;
 		int offsets;
 		char *s;
