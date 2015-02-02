@@ -29,13 +29,25 @@
 		int i;
 		for(i=0; i<doc->total_xref_sections; i++){
 			pdf_xref *xref = &doc->xref_sections[i];
-			pdf_xref_subsec *sub=xref->subsec;
 			if ( xref->trailer != NULL ){
 				pdf_drop_obj(xref->trailer);
 				pdf_drop_obj(xref->trailer);
 			}
-			PDFFree(sub->table);
-			PDFFree(sub);
+
+			pdf_xref_subsec *sub=xref->subsec, *next;
+			while ( sub != NULL ){
+				next=sub->next;
+				int j;
+				for(j=0; j<sub->len; j++){
+					if ( sub->table[j].obj != NULL ){
+						pdf_drop_obj(sub->table[j].obj);
+					}
+				}
+
+				PDFFree(sub->table);
+				PDFFree(sub);
+				sub=next;
+			}
 		}
 
 		PDFFree(doc->xref_index);
@@ -73,20 +85,8 @@
 			pdf_xref_subsec *sub=xref->subsec;
 			int f=sub->len;
 			printf("Xref SubSection[%d] Offsets filled in document \t=\t%d\n", j, f);
-		
-			int i;
-			for(i=0; i<sub->len; i++){
-				printf("Xref Sub Sections %d Offsets %d - type=%c\n", i+sub->start, sub->table[i].offsets,
-					sub->table[i].type);
-				
-			}
 		}
-		int *idx = doc->xref_index;
 		
-		for (j=0; j<doc->max_xref_len-1; j++){
-			printf("%d Offset would found in xef_sections[%d]\n", j, idx[j]);
-		}
-
 		pdf_cleanup(doc);
 	}
 

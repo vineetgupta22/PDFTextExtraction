@@ -10,6 +10,7 @@
 
 		#define 			PDFMalloc(size) 		PDFMemAlloc(size, __FILE__, __LINE__)
 		#define 			PDFFree(ptr) 			PDFMemFree(ptr, __FILE__, __LINE__)
+		#define 			PDFReAlloc(ptr, size)	PDFMemReAlloc(ptr, size, __FILE__, __LINE__)
 
 		/**
 		*	@def			PDF_MINCHUNK

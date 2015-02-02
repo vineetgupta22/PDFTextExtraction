@@ -13,10 +13,11 @@
 
 	/***************************** Starting Prototypes ********************/
 	unsigned int PDFEstimated(unsigned int size);
-	PDF_MEM_TRACE *PDFMemTrace(const char *file, unsigned int line, void *ptr, unsigned int size);
-	PDFExport void * PDFAPI PDFMemAlloc(unsigned int size, const char *file, unsigned int line);
-	PDFExport void PDFAPI PDFMemFree (void *Address, const char *file, int line);
 	PDFExport void PDFAPI PDFMemDetails(void);
+	PDFExport void PDFAPI PDFMemFree (void *Address, const char *file, int line);
+	PDFExport void * PDFAPI PDFMemAlloc(unsigned int size, const char *file, unsigned int line);
+	PDF_MEM_TRACE *PDFMemTrace(const char *file, unsigned int line, void *ptr, unsigned int size);
+	PDFExport void * PDFAPI PDFMemReAlloc(void *Address, unsigned int size, const char *file, unsigned int line);
 	/***************************** Ending Prototypes **********************/
 	
 	
@@ -260,5 +261,25 @@
 		/* Free the memory */
 		free(PDFMemPtr);
 	}
+
+	PDFExport void * PDFAPI PDFMemReAlloc(void *Address, unsigned int size, const char *file, unsigned int line){
+		void        		*MemPtr;
+		PDF_MEM_HEADER    	*Header;
+		unsigned int   		OldSize;
+
+		PDFReallocCalls++;
+		PDFTotalCalls--;
+		PDFMemTotalFree--;
+
+		MemPtr =  PDFMemAlloc(size, file, line);
+		if (Address){
+			Header = (PDF_MEM_HEADER *)Address - 1;
+			OldSize = Header->Size;
+			memcpy(MemPtr, Address, (OldSize < size ? OldSize : size));
+			PDFFree(Address);
+		}
+		return MemPtr;
+	}
+
 
 	C_MODE_END

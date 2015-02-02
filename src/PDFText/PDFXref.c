@@ -43,8 +43,19 @@
 			}
 			doc->max_xref_len = newlen;
 		}else{
-			printf("already malloc done\n");
-			exit(0);
+			int *new;
+			new = (int *)PDFMalloc(sizeof(int)*(unsigned)newlen);
+			memset(new, 0, sizeof(int)*(unsigned)newlen);
+
+			for (i=0; i<doc->max_xref_len; i++){
+				new[i]=doc->xref_index[i];
+			}
+			PDFFree(doc->xref_index);
+			doc->xref_index=new;
+			for (i = doc->max_xref_len; i < newlen; i++){
+				doc->xref_index[i] = 0;
+			}
+			doc->max_xref_len = newlen;
 		}
 	}
 
@@ -99,6 +110,7 @@
 			xref->objects = new_max;
 
 			if (doc->max_xref_len < new_max){
+				printf("doc->max_xref_len=%d; new_max=%d\n", doc->max_xref_len, new_max);
 				extend_xref_index(doc, new_max);
 			}
 		}else{
@@ -548,6 +560,38 @@
 		//Creating reference index
 		pdf_create_xref_index(doc);
 
+		//For reading the Pages One by One we need to go through root
+		//and according to PDF Manual root is described in trailer
+
+		//Getting our trailer object
+		pdf_xref *xref = &doc->xref_sections[0];
+
+		//now we have our root object
+		pdf_obj *root = pdf_dict_gets(xref->trailer, "Root");
+
+		//if we have our root object
+		if ( root ){
+			//it must be indriect referrence
+			if ( root && root->kind == PDF_INDIRECT){
+
+				//need to resolve the indirect object
+				root = pdf_resolve_indirect(doc, root);
+
+				pdf_obj *pages;
+				pages = pdf_dict_gets(root, "Pages");
+
+				if ( pages && pages->kind == PDF_INDIRECT){
+					//need to resolve the indirect object
+					pages = pdf_resolve_indirect(doc, pages);
+
+
+
+				}
+			}else{
+				printf("root doesn't point to indirect object\n");
+				exit(0);
+			}
+		}
 	}
 
 	C_MODE_END

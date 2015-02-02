@@ -11,10 +11,93 @@
 	/***************************** Starting Prototypes ********************/
 	pdf_obj *pdf_parse_array(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf);
 	pdf_trailer *pdf_parse_dict(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf);
+	pdf_obj *pdf_parse_ind_obj(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf, int *onum, int *ogen, int *ostmofs);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+
+	pdf_obj *pdf_parse_ind_obj(pdf_document *doc PDFUnused, pdf_stream *file, pdf_lexbuf *buf, int *onum PDFUnused, int *ogen PDFUnused, int *ostmofs PDFUnused){
+		pdf_obj *obj = NULL;
+		pdf_token tok;
+		int num = 0, gen = 0, stm_ofs = 0;
+
+		tok = pdf_lex(file, buf);
+		if (tok != PDF_TOK_INT){
+			printf("expected object number\n");
+			exit(0);
+		}
+		num = buf->i;
+
+		tok = pdf_lex(file, buf);
+		if (tok != PDF_TOK_INT){
+			printf("expected generation number (%d ? obj)\n", num);
+			exit(0);
+		}
+		gen = buf->i;
+
+		tok = pdf_lex(file, buf);
+		if (tok != PDF_TOK_OBJ){
+			printf("expected 'obj' keyword (%d %d ?)\n", num, gen);
+			exit(0);
+		}
+		tok = pdf_lex(file, buf);
+		switch (tok){
+			case PDF_TOK_OPEN_ARRAY:
+				printf("PDF_TOK_OPEN_ARRAY\n");
+				exit(0);
+			case PDF_TOK_OPEN_DICT:
+				obj = pdf_parse_dict(doc, file, buf);
+				break;
+			case PDF_TOK_NAME:
+				printf("PDF_TOK_NAME\n");
+				exit(0);
+			case PDF_TOK_REAL:
+				printf("PDF_TOK_REAL\n");
+				exit(0);
+			case PDF_TOK_STRING:
+				printf("PDF_TOK_STRING\n");
+				exit(0);
+			case PDF_TOK_TRUE:
+				printf("PDF_TOK_TRUE\n");
+				exit(0);
+			case PDF_TOK_FALSE:
+				printf("PDF_TOK_FALSE\n");
+				exit(0);
+			case PDF_TOK_NULL:
+				printf("PDF_TOK_NULL\n");
+				exit(0);
+			case PDF_TOK_INT:
+				printf("PDF_TOK_INT\n");
+				exit(0);
+			case PDF_TOK_ENDOBJ:
+				printf("PDF_TOK_ENDOBJ\n");
+				exit(0);
+			default:
+				printf("default\n");
+				exit(0);
+		}
+
+		tok = pdf_lex(file, buf);
+		if (tok == PDF_TOK_STREAM){
+			printf("PDF_TOK_STREAM\n");
+			exit(0);
+		}else if (tok == PDF_TOK_ENDOBJ){
+			stm_ofs = 0;
+		}else{
+			printf("expected 'endobj' or 'stream' keyword (%d %d R)", num, gen);
+			exit(0);
+			stm_ofs = 0;
+		}
+
+		if (onum) *onum = num;
+		if (ogen) *ogen = gen;
+		if (ostmofs) *ostmofs = stm_ofs;
+
+		return obj;
+	}
+
 
 	pdf_obj *pdf_parse_array(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf){
 		pdf_obj *op = NULL;
@@ -47,11 +130,23 @@
 					op = ary;
 					goto end;
 				case PDF_TOK_INT:
-					printf("PDF_TOK_INT\n");
-					exit(0);
+					if (n == 0)
+						a = buf->i;
+					if (n == 1)
+						b = buf->i;
+					n ++;
+					break;
 				case PDF_TOK_R:
-					printf("PDF_TOK_R\n");
-					exit(0);
+					if (n != 2){
+						printf("cannot parse indirect reference in array\n");
+						exit(0);
+					}
+					obj = pdf_new_indirect(a, b);
+					pdf_array_push(doc, ary, obj);
+					pdf_drop_obj(obj);
+					obj = NULL;
+					n = 0;
+					break;
 				case PDF_TOK_OPEN_ARRAY:
 					printf("PDF_TOK_OPEN_ARRAY\n");
 					exit(0);
@@ -133,8 +228,7 @@ end:
 					exit(0);
 					break;
 				case PDF_TOK_NAME:
-					printf("PDF_TOK_NAME\n");
-					exit(0);
+					val = pdf_new_name(buf->scratch);
 					break;
 				case PDF_TOK_REAL:
 					printf("PDF_TOK_REAL\n");

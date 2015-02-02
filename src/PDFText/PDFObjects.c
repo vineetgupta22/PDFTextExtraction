@@ -275,7 +275,6 @@
 			int i;
 			for (i = 0; i < obj->u.d.len; i++){
 				if (strcmp(pdf_to_name(obj->u.d.items[i].k), key) == 0){
-					printf("Found key location=%d\n", i);
 					return i;
 				}
 			}

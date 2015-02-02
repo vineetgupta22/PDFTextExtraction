@@ -67,6 +67,7 @@
 
 		//Functions defined under src/PDFParser.c
 		extern pdf_trailer *pdf_parse_dict(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf);
+		extern pdf_obj *pdf_parse_ind_obj(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf, int *onum, int *ogen, int *ostmofs);
 
 		//Functions defined under src/PDFObjects.c
 		extern pdf_obj *pdf_new_int(int i);
@@ -80,8 +81,11 @@
 		extern pdf_obj *pdf_new_string(const char *str, int len);
 		extern pdf_obj *pdf_dict_gets(pdf_obj *obj, const char *key);
 		extern pdf_obj * pdf_new_array(pdf_document *doc, int initialcap);
-		void pdf_array_push(pdf_document *doc, pdf_obj *obj, pdf_obj *item);
-		void pdf_dict_put(pdf_document *doc, pdf_obj *obj, pdf_obj *key, pdf_obj *val);
+		extern void pdf_array_push(pdf_document *doc, pdf_obj *obj, pdf_obj *item);
+		extern void pdf_dict_put(pdf_document *doc, pdf_obj *obj, pdf_obj *key, pdf_obj *val);
+
+		//Function defined in src/PDFIndirect.c
+		extern pdf_obj *pdf_resolve_indirect(pdf_document *doc, pdf_obj *ref);
 
 
 		/*********** Starting of Memory Allocation [File = PDFMem.c]***********/
@@ -93,6 +97,8 @@
 
 		//Linking to print Memory Details
 		extern PDFExport void PDFAPI PDFMemDetails(void);
+
+		extern PDFExport void * PDFAPI PDFMemReAlloc(void *Address, unsigned int size, const char *file, unsigned int line);
 		/****************** Ending of of Memory Allocation ********************/
 
 
