@@ -30,7 +30,6 @@
 
 		typedef		struct PDFTextExtraction_Document_Structure				pdf_document;
 		typedef		struct PDFTextExtraction_Document_Buffer				pdf_buffer;
-		typedef 	struct PDFTextExtraction_Documents_Object 				pdf_obj;
 		typedef 	struct PDFTextExtraction_Documents_Xref_Sections 		pdf_xref;
 		typedef 	struct PDFTextExtraction_Documents_Xref_Entry			pdf_xref_entry;
 		typedef 	struct PDFTextExtraction_Documents_Xref_SubSections		pdf_xref_subsec;
@@ -210,6 +209,8 @@
 			*	@brief		:			xref index found in Document
 			**/
 			int 						*xref_index;
+
+			int 						freeze_updates;
 
 			/**
 			*	@var		:			xref_sections

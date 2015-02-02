@@ -27,7 +27,11 @@
 		//doing alignment of 4 bytes as required by some systems
 		#pragma		pack(push, 4)
 
-		#define 		IS_NUMBER 				'+':case'-':case'.':case'0':case'1':case'2':case'3': case'4':case'5':case'6':case'7':case'8':case'9'
+		#define 		RANGE_0_9				'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9'
+		#define 		RANGE_a_f  				'a':case'b':case'c':case'd':case'e':case'f'
+		#define 		RANGE_A_F 				'A':case'B':case'C':case'D':case'E':case'F'
+		#define 		IS_NUMBER 				'+':case'-':case'.':case RANGE_0_9
+		#define 		IS_HEX					RANGE_0_9 : case RANGE_a_f : case RANGE_A_F
 		#define 		IS_WHITE				'\000':case'\011':case'\012':case'\014':case'\015':case'\040'
 		#define 		IS_DELIM 				'(':case')':case'<':case'>':case'[':case']':case'{': case'}':case'/':case'%'
 		#define			pdf_unread_byte(stm)	stm->rp--;

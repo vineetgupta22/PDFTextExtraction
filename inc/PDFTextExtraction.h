@@ -115,6 +115,10 @@
 			#include<unistd.h>
 		#endif
 
+		#ifndef _PDFMem_
+			#include<PDFMem.h>
+		#endif
+
 		//Defined Macros
 		#ifndef _PDFTextExtractionMacros_
 			#include<PDFMacros.h>

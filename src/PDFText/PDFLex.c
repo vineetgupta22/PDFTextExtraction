@@ -23,15 +23,111 @@
 
 
 	/***************************** Starting Prototypes ********************/
+	int unhex(int ch);
 	void lex_white(pdf_stream *f);
 	pdf_token pdf_token_from_keyword(char *key);
 	void lex_name(pdf_stream *f, pdf_lexbuf *buf);
+	int lex_hex_string(pdf_stream *f, pdf_lexbuf *lb);
 	pdf_token pdf_lex(pdf_stream *f, pdf_lexbuf *buf);
+	int lex_number(pdf_stream *f, pdf_lexbuf *buf, int c);
 	void pdf_lexbuf_init(pdf_lexbuf *lex_buffer, int size);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	int unhex(int ch){
+		if (ch >= '0' && ch <= '9') return ch - '0';
+		if (ch >= 'A' && ch <= 'F') return ch - 'A' + 0xA;
+		if (ch >= 'a' && ch <= 'f') return ch - 'a' + 0xA;
+		return 0;
+	}
+
+	int lex_hex_string(pdf_stream *f, pdf_lexbuf *lb){
+		char *s = lb->scratch;
+		char *e = s + lb->size;
+		int a = 0, x = 0;
+		int c;
+
+		while (1){
+			if (s == e){
+				printf("s==e\n");
+				exit(0);
+			}
+			c = pdf_read_byte(f);
+			switch(c){
+				case IS_WHITE:
+					break;
+				case IS_HEX:
+					if (x){
+						*s++ = (char)(a * 16 + unhex(c));
+						x = ~x;
+					}else{
+						a = unhex(c);
+						x = ~x;
+					}
+					break;
+				case '>':
+				case EOF:
+					goto end;
+				default:
+					printf("ignoring invalid character in hex string");
+					exit(0);
+			}
+		}
+	end:
+		lb->len = s - lb->scratch;
+		return PDF_TOK_STRING;
+	}
+
+
+	/**
+	*	@fn			lex_number(pdf_stream *f, pdf_lexbuf *buf, int c)
+	*	@param[in]	f		PDF Stream
+	*	@param[in]	buf		Lex Buffer for doing Lex Parser
+	*	@param[in]	c		Already Read byte
+	*	@brief		During token generation or parsing the white are
+	*	ignoring done by this function
+	**/
+	int lex_number(pdf_stream *f, pdf_lexbuf *buf, int c){
+		int i=0;
+		/* Initially we might have +, -, . or a digit */
+		switch (c){
+			case '.':
+				printf("received dot");
+				exit(0);
+				break;
+			case '-':
+				printf("received negative");
+				exit(0);
+				break;
+			case '+':
+				break;
+			default:
+				//Assumption that it is digit
+				i = c - '0';
+				break;
+		}
+
+		while(1){
+			c = pdf_read_byte(f);
+			switch (c){
+				case '.':
+					printf("received dot");
+					exit(0);
+					break;
+				case RANGE_0_9:
+					i = 10*i + c - '0';
+					break;
+				default:
+					pdf_unread_byte(f);
+				case EOF:
+
+				buf->i = i;
+				return PDF_TOK_INT;
+			}
+		}
+	}
 
 	/**
 	*	@fn			lex_white(pdf_stream *f)
@@ -180,8 +276,8 @@ end:
 					exit(0);
 					break;
 				case '/':
-					printf("lex_name(f, buf);");
-					printf(" return PDF_TOK_NAME; ");
+					lex_name(f, buf);
+					return PDF_TOK_NAME;
 					break;
 				case '(':
 					printf("return lex_string(f, buf);");
@@ -195,10 +291,11 @@ end:
 					if (c == '<'){
 						return PDF_TOK_OPEN_DICT;
 					}else{
-						printf("pdf_unread_byte(f);");
-						printf("return lex_hex_string(f, buf);");
-						exit(0);
+						pdf_unread_byte(f);
+						return lex_hex_string(f, buf);
 					}
+					printf("return lex_hex_string(f, buf);");
+					exit(0);
 				case '>':
 					c = pdf_read_byte(f);
 					if (c == '>'){
@@ -215,9 +312,7 @@ end:
 				case '}':
 					return PDF_TOK_CLOSE_BRACE;
 				case IS_NUMBER:
-					printf("return lex_number(f, buf, c);");
-					exit(0);
-					break;
+					return lex_number(f, buf, c);
 				default:
 					pdf_unread_byte(f);
 					lex_name(f, buf);

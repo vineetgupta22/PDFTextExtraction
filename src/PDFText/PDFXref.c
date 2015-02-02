@@ -17,6 +17,7 @@
 	void extend_xref_index(pdf_document *doc, int newlen);
 	void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf);
 	pdf_trailer *pdf_read_xref(pdf_document *doc, pdf_lexbuf *buf);
+	void pdf_set_xref_trailer(pdf_document *doc, pdf_obj *trailer);
 	pdf_xref_entry *pdf_xref_find_subsection(pdf_document *doc, int start, int length);
 	pdf_trailer *pdf_read_xref_section(pdf_document *doc, int offset, pdf_lexbuf *buf);
 	void pdf_load_xref_last(pdf_document *doc, int offset, pdf_lexbuf *buf, int ReadPrevious);
@@ -33,9 +34,9 @@
 		int i;
 
 		if ( !doc->max_xref_len ){
-			doc->xref_index = (int *)malloc(sizeof(int)*(unsigned)newlen);
+			doc->xref_index = (int *)PDFMalloc(sizeof(int)*(unsigned)newlen);
 			memset(doc->xref_index, 0, sizeof(int)*(unsigned)newlen);
-			MallocSize+=(sizeof(int)*(unsigned)newlen);
+
 			for (i = doc->max_xref_len; i < newlen; i++){
 				doc->xref_index[i] = 0;
 			}
@@ -83,13 +84,11 @@
 		}
 
 		if (sub == NULL){
-			sub = (pdf_xref_subsec*)malloc(sizeof(pdf_xref_subsec));
+			sub = (pdf_xref_subsec*)PDFMalloc(sizeof(pdf_xref_subsec));
 			memset(sub, 0, sizeof(pdf_xref_subsec));
-			MallocSize+=sizeof(pdf_xref_subsec);
 
-			sub->table = (pdf_xref_entry*)malloc((unsigned)length*sizeof(pdf_xref_entry));
+			sub->table = (pdf_xref_entry*)PDFMalloc((unsigned)length*sizeof(pdf_xref_entry));
 			memset(sub->table, 0, ((unsigned)length*sizeof(pdf_xref_entry)));
-			MallocSize+=((unsigned)length*sizeof(pdf_xref_subsec));
 
 			sub->start = start;
 			sub->len = length;
@@ -244,6 +243,15 @@
 		return trailer;
 	}
 
+	void pdf_set_xref_trailer(pdf_document *doc, pdf_obj *trailer){
+		/* Update the trailer of the xref section being populated */
+		pdf_xref *xref = &doc->xref_sections[doc->total_xref_sections - 1];
+		if (xref->trailer){
+			printf("trailer already set\n");
+			exit(0);
+		}
+		xref->trailer = pdf_keep_obj(trailer);
+	}
 
 	/**
 	*	@fn			pdf_load_xref_section(pdf_document *doc, int offset,
@@ -282,10 +290,9 @@
 		//the reference offset bytes of Previous xref if any available in document.
 		trailer=pdf_read_xref_section(doc, offset, buf);
 
-		if ( ! trailer ){
-			//printf("trailer in PDF not found\n");
-			//exit(0);
-		}
+		//Not set the xref trailer
+		pdf_set_xref_trailer(doc, trailer);
+
 
 		//temprory
 		return 0;
@@ -300,11 +307,8 @@
 		if ( offsets_list_left ){
 			pdf_xref *xref;
 			if ( offsets_list_left == 25 ){
-				doc->xref_sections = (pdf_xref *)malloc(sizeof(pdf_xref)*25);
+				doc->xref_sections = (pdf_xref *)PDFMalloc(sizeof(pdf_xref)*25);
 				memset(doc->xref_sections,0, sizeof(pdf_xref)*25);
-
-				//Adding Memory allocation size
-				MallocSize+=(sizeof(pdf_xref)*25);
 			}
 			doc->total_xref_sections++;
 			xref = &doc->xref_sections[doc->total_xref_sections - 1];
@@ -341,11 +345,8 @@
 		//Maximum Number of list we can store
 		all_offsets.max=25;
 
-		all_offsets.list	=	(int *)malloc(sizeof(int)*(unsigned)all_offsets.max);
+		all_offsets.list	=	(int *)PDFMalloc(sizeof(int)*(unsigned)all_offsets.max);
 		memset(all_offsets.list, 0,  (sizeof(int)*((unsigned)all_offsets.max)));
-
-		//Adding Memory allocation size
-		MallocSize+=(sizeof(int)*25);
 
 		while ( offset ){
 			pdf_next_xref(doc);
@@ -356,10 +357,7 @@
 		}
 
 		//Freeing the all offsets lists
-		free(all_offsets.list);
-
-		//Removing Memory allocation size
-		MallocSize-=(sizeof(int)*25);
+		PDFFree(all_offsets.list);
 	}
 
 	/**

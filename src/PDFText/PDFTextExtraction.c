@@ -10,6 +10,7 @@
 
 	/***************************** Starting Prototypes ********************/
 	void pdf_info(pdf_document *doc);
+	void pdf_cleanup(pdf_document *doc);
 	void pdf_file_version(pdf_document *doc);
 	void pdf_init_document(pdf_document *doc);
 	pdf_document *pdf_new_document(pdf_stream *file);
@@ -21,12 +22,34 @@
 	unsigned long MallocSize;
 	/***************************** Global Variables ********************/
 
+	void pdf_cleanup(pdf_document *doc PDFUnused){
+
+		pdf_free_stream(doc->file);
+
+		int i;
+		for(i=0; i<doc->total_xref_sections; i++){
+			pdf_xref *xref = &doc->xref_sections[doc->total_xref_sections-1];
+			pdf_xref_subsec *sub=xref->subsec;
+			PDFFree(sub->table);
+			PDFFree(sub);
+		}
+
+		PDFFree(doc->xref_index);
+		PDFFree(doc->xref_sections);
+		PDFFree(doc);
+
+		//Starting of clean up process
+		PDFMemDetails();
+	}
+
 	/**
 	*	@fn			pdf_info(pdf_document *doc)
 	*	@param[in]	name	Name of File
 	*	@brief		Information Found in PDF File
 	**/
 	void pdf_info(pdf_document *doc){
+		//Starting of clean up process
+
 		printf("Starting overheads in File \t\t\t= \t%d\n", doc->overhead);
 		printf("Version of Document \t\t\t\t= \t%d\n", doc->version);
 		if ( doc->binary_data ){
@@ -44,7 +67,8 @@
 			}
 		}
 		printf("Xref Sub Sections Offsets filled in document \t=\t%d\n", f);
-		printf("\n\nTotal Memory Allocation but not freed\t\t=\t%lu\n\n", MallocSize);
+
+		pdf_cleanup(doc);
 	}
 
 	/**
@@ -85,9 +109,8 @@
 	pdf_document *pdf_new_document(pdf_stream *file){
 		pdf_document *doc=NULL;
 
-		doc=(pdf_document*)malloc(sizeof(pdf_document));
+		doc=(pdf_document*)PDFMalloc(sizeof(pdf_document));
 		memset(doc, 0, sizeof(pdf_document));
-		MallocSize+=sizeof(pdf_document);
 
 		//Sending to Init the lex elements for reading document
 		pdf_lexbuf_init(&doc->lexbuf.base, PDFTextExt_LEXBUF_LARGE);

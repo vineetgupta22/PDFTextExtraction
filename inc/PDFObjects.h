@@ -60,9 +60,57 @@
 			PDF_INDIRECT = 'r'
 		}pdf_object_kind;
 
+		enum{
+			PDF_FLAGS_MARKED = 1,
+			PDF_FLAGS_SORTED = 2,
+			PDF_FLAGS_MEMO = 4,
+			PDF_FLAGS_MEMO_BOOL = 8,
+			PDF_FLAGS_DIRTY = 16
+		};
 
-		typedef 	struct PDFTextExtraction_Documents_trailer 				pdf_trailer;
+		#define				pdf_trailer						pdf_obj
 
+		typedef			struct PDFTextExtraction_Documents_Object				pdf_obj;
+
+		struct keyval{
+			pdf_obj *k;
+			pdf_obj *v;
+		};
+
+		/**
+		*	@struct		:		PDFTextExtraction_Documents_Object
+		*	@brief		:		PDF Objects are stored here
+		**/
+		struct PDFTextExtraction_Documents_Object{
+			int 				refs;
+			unsigned char 		kind;
+			unsigned char 		flags;
+			int 				parent_num;
+			union{
+				int 			b;
+				int 			i;
+				float 			f;
+				struct{
+					int 		len;
+					char 		buf[1];
+				} s;
+				char n[1];
+				struct {
+					int 		len;
+					int 		cap;
+					pdf_obj 	**items;
+				} a;
+				struct {
+					int 		len;
+					int 		cap;
+					struct keyval *items;
+				} d;
+				struct {
+					int 		num;
+					int 		gen;
+				} r;
+			} u;
+		};
 
 		//Endling of alignment
 		#pragma		pack(pop)

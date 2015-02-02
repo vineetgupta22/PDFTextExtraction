@@ -14,6 +14,7 @@
 	int pdf_read_byte(pdf_stream *stm);
 	int pdf_peek_byte(pdf_stream *stm);
 	int pdf_next(pdf_stream *stm, int n);
+	void pdf_free_stream(pdf_stream *stm);
 	pdf_stream *pdf_new_stream(void *state);
 	int pdf_available(pdf_stream *stm, int max);
 	pdf_stream *pdf_open_file(const char *name);
@@ -58,9 +59,8 @@
 	pdf_stream *pdf_new_stream(void *state){
 		pdf_stream *stm;
 
-		stm=(pdf_stream*)malloc(sizeof(pdf_stream));
+		stm=(pdf_stream*)PDFMalloc(sizeof(pdf_stream));
 		memset(stm, 0, sizeof(pdf_stream));
-		MallocSize+=sizeof(pdf_stream);
 
 		//Increasing reference counts
 		stm->refs = 1;
@@ -88,9 +88,8 @@
 		pdf_file_stream *state;
 
 		//Memory Allocation of stream file
-		state=(pdf_file_stream*)malloc(sizeof(pdf_file_stream));
+		state=(pdf_file_stream*)PDFMalloc(sizeof(pdf_file_stream));
 		memset(state, 0, sizeof(pdf_file_stream));
-		MallocSize+=sizeof(pdf_file_stream);
 
 		state->file = fd;
 
@@ -361,6 +360,14 @@
 		}while (len > 0);
 
 		return count;
+	}
+
+	void pdf_free_stream(pdf_stream *stm){
+		pdf_file_stream *state=stm->state;
+		int fd=state->file;
+		close(fd);
+		PDFFree(state);
+		PDFFree(stm);
 	}
 
 	C_MODE_END
