@@ -92,7 +92,7 @@
 				float 			f;
 				struct{
 					int 		len;
-					char 		buf[1];
+					char 		*buf;
 				} s;
 				char n[1];
 				struct {

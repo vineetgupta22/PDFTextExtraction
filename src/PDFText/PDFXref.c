@@ -14,6 +14,7 @@
 	void pdf_load_startxref(pdf_document *doc);
 	void pdf_contains_binary(pdf_document *doc);
 	void pdf_start_overheads(pdf_document *doc);
+	void pdf_create_xref_index(pdf_document *doc);
 	void extend_xref_index(pdf_document *doc, int newlen);
 	void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf);
 	pdf_trailer *pdf_read_xref(pdf_document *doc, pdf_lexbuf *buf);
@@ -265,6 +266,7 @@
 	**/
 	int pdf_load_xref_section(pdf_document *doc, int offset, pdf_lexbuf *buf, offsets_list *offsets){
 		int i;
+		int prevofs=0;
 		pdf_trailer	*trailer;
 
 		/* for avoid potential infinite recursion sections */
@@ -293,9 +295,22 @@
 		//Not set the xref trailer
 		pdf_set_xref_trailer(doc, trailer);
 
+		//Finding XRefStm section
+		pdf_obj *XRefStm;
+		XRefStm=pdf_dict_gets(trailer, "XRefStm");
+
+		if ( XRefStm ){
+			printf("XRefStm has been found in document\n");
+			exit(0);
+		}
+
+		XRefStm=pdf_dict_gets(trailer, "Prev");
+		if ( XRefStm ){
+			prevofs=pdf_to_int(XRefStm) + doc->overhead;
+		}
 
 		//temprory
-		return 0;
+		return prevofs;
 	}
 
 	/**
@@ -489,6 +504,29 @@
 	}
 
 
+	void pdf_create_xref_index(pdf_document *doc){
+		int i, j;
+		int *idx = doc->xref_index;
+
+		for(i=0; i<doc->total_xref_sections; i++){
+			pdf_xref *xref = &doc->xref_sections[i];
+			pdf_xref_subsec *subsec = xref->subsec;
+
+			while (subsec != NULL){
+				int start = subsec->start;
+				int end = subsec->start + subsec->len;
+				for (j = start; j < end; j++){
+					char t = subsec->table[j-start].type;
+					if (t != 0 && t != 'f'){
+						idx[j] = i;
+					}
+				}
+				subsec = subsec->next;
+			}
+		}
+	}
+
+
 	/**
 	*	@fn			pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf)
 	*	@param[in]	doc		PDF Document Structure for reading PDF File
@@ -506,6 +544,10 @@
 
 		//Now we can load the xref section
 		pdf_load_xref_last(doc, doc->startxref, buf, 1);
+
+		//Creating reference index
+		pdf_create_xref_index(doc);
+
 	}
 
 	C_MODE_END

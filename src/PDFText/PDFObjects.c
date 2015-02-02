@@ -11,8 +11,10 @@
 	/***************************** Starting Prototypes ********************/
 	pdf_obj *pdf_new_dict(void);
 	pdf_obj *pdf_new_int(int i);
-	char *pdf_to_name(pdf_obj *obj);
+	int pdf_to_int(pdf_obj *obj);
 	void pdf_drop_obj(pdf_obj *obj);
+	void pdf_free_dict(pdf_obj *obj);
+	void pdf_free_array(pdf_obj *obj);
 	char *pdf_to_name(pdf_obj *obj);
 	void pdf_free_trailer(pdf_obj *obj);
 	pdf_obj *pdf_keep_obj(pdf_obj *obj);
@@ -20,6 +22,7 @@
 	pdf_obj *pdf_new_indirect(int num, int gen);
 	int pdf_find_obj(pdf_obj *obj, const char *key);
 	pdf_obj *pdf_new_string(const char *str, int len);
+	pdf_obj *pdf_dict_gets(pdf_obj *obj, const char *key);
 	int pdf_dict_finds(pdf_obj *obj, const char *key, int *location);
 	void object_altered(pdf_document *doc, pdf_obj *obj, pdf_obj *val);
 	void pdf_array_push(pdf_document *doc, pdf_obj *obj, pdf_obj *item);
@@ -28,6 +31,28 @@
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	int pdf_to_int(pdf_obj *obj){
+		do {
+			if (obj && obj->kind == PDF_INDIRECT){
+				printf("obj = pdf_resolve_indirect(obj);\n");
+				exit(0);
+			}
+		} while (0);
+
+		if (!obj){
+			return 0;
+		}
+		if (obj->kind == PDF_INT){
+			return obj->u.i;
+		}
+		if (obj->kind == PDF_REAL){
+			/* No roundf in MSVC */
+			return (int)(obj->u.f + 0.5f);
+		}
+		return 0;
+	}
+
 
 	pdf_obj *pdf_new_string(const char *str, int len){
 		pdf_obj *obj;
@@ -41,6 +66,7 @@
 		obj->parent_num = 0;
 		obj->u.s.len = len;
 
+		obj->u.s.buf=(char *)PDFMalloc(10+(unsigned)len);
 		memcpy(obj->u.s.buf, str, (unsigned)len);
 		obj->u.s.buf[len] = '\0';
 
@@ -261,6 +287,28 @@
 		return -1;
 	}
 
+	void pdf_free_dict(pdf_obj *obj){
+		int i;
+
+		for (i = 0; i < obj->u.d.len; i++) {
+			pdf_drop_obj(obj->u.d.items[i].k);
+			pdf_drop_obj(obj->u.d.items[i].v);
+		}
+
+		PDFFree(obj->u.d.items);
+		PDFFree(obj);
+	}
+
+	void pdf_free_array(pdf_obj *obj){
+		int i;
+
+		for (i = 0; i < obj->u.a.len; i++){
+			pdf_drop_obj(obj->u.a.items[i]);
+		}
+
+		PDFFree(obj->u.a.items);
+		PDFFree(obj);
+	}
 
 	void pdf_drop_obj(pdf_obj *obj){
 		if (!obj){
@@ -270,11 +318,12 @@
 			return;
 		}
 		if (obj->kind == PDF_ARRAY){
-			printf("free array\n");
-			exit(0);
+			pdf_free_array(obj);
 		}else if (obj->kind == PDF_DICT){
-			printf("free dict");
-			exit(0);
+			pdf_free_dict(obj);
+		}else if (obj->kind == PDF_STRING){
+			PDFFree(obj->u.s.buf);
+			PDFFree(obj);
 		}else{
 			PDFFree(obj);
 		}
@@ -315,8 +364,22 @@
 	}
 
 
-	void pdf_free_trailer(pdf_obj *obj PDFUnused){
+	pdf_obj *pdf_dict_gets(pdf_obj *obj, const char *key){
+		do {
+			if (obj && obj->kind == PDF_INDIRECT){
+				printf("obj = pdf_resolve_indirect(obj);\n");
+				exit(0);
+			}
+		} while (0);
 
+		if (!obj || obj->kind != PDF_DICT)
+			return NULL;
+
+		int i;
+		i = pdf_dict_finds(obj, key, NULL);
+		if (i >= 0)
+			return obj->u.d.items[i].v;
+		return NULL;
 	}
 
 

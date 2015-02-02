@@ -28,8 +28,12 @@
 
 		int i;
 		for(i=0; i<doc->total_xref_sections; i++){
-			pdf_xref *xref = &doc->xref_sections[doc->total_xref_sections-1];
+			pdf_xref *xref = &doc->xref_sections[i];
 			pdf_xref_subsec *sub=xref->subsec;
+			if ( xref->trailer != NULL ){
+				pdf_drop_obj(xref->trailer);
+				pdf_drop_obj(xref->trailer);
+			}
 			PDFFree(sub->table);
 			PDFFree(sub);
 		}
@@ -38,6 +42,7 @@
 		PDFFree(doc->xref_sections);
 		PDFFree(doc);
 
+		printf("\n\n\n");
 		//Starting of clean up process
 		PDFMemDetails();
 	}
@@ -60,13 +65,27 @@
 		printf("startxref offset to xref \t\t\t= \t%d\n", doc->startxref);
 		printf("Total xref sections found in document \t\t=\t%d\n", doc->total_xref_sections);
 		printf("Xref Sub Sections Length found in document \t=\t%d\n", doc->max_xref_len);
-		int i, f=0;
-		for(i=0; i<doc->max_xref_len; i++){
-			if ( doc->xref_index[i] > 0 ){
-				f++;
+		
+		int j;
+		
+		for(j=0; j<doc->total_xref_sections; j++){
+			pdf_xref *xref = &doc->xref_sections[j];
+			pdf_xref_subsec *sub=xref->subsec;
+			int f=sub->len;
+			printf("Xref SubSection[%d] Offsets filled in document \t=\t%d\n", j, f);
+		
+			int i;
+			for(i=0; i<sub->len; i++){
+				printf("Xref Sub Sections %d Offsets %d - type=%c\n", i+sub->start, sub->table[i].offsets,
+					sub->table[i].type);
+				
 			}
 		}
-		printf("Xref Sub Sections Offsets filled in document \t=\t%d\n", f);
+		int *idx = doc->xref_index;
+		
+		for (j=0; j<doc->max_xref_len-1; j++){
+			printf("%d Offset would found in xef_sections[%d]\n", j, idx[j]);
+		}
 
 		pdf_cleanup(doc);
 	}

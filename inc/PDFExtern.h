@@ -70,6 +70,7 @@
 
 		//Functions defined under src/PDFObjects.c
 		extern pdf_obj *pdf_new_int(int i);
+		extern int pdf_to_int(pdf_obj *obj);
 		extern pdf_obj *pdf_new_dict(void);
 		extern void pdf_drop_obj(pdf_obj *obj);
 		extern pdf_obj *pdf_keep_obj(pdf_obj *obj);
@@ -77,6 +78,7 @@
 		extern pdf_obj *pdf_new_name(const char *str);
 		extern pdf_obj *pdf_new_indirect(int num, int gen);
 		extern pdf_obj *pdf_new_string(const char *str, int len);
+		extern pdf_obj *pdf_dict_gets(pdf_obj *obj, const char *key);
 		extern pdf_obj * pdf_new_array(pdf_document *doc, int initialcap);
 		void pdf_array_push(pdf_document *doc, pdf_obj *obj, pdf_obj *item);
 		void pdf_dict_put(pdf_document *doc, pdf_obj *obj, pdf_obj *key, pdf_obj *val);
