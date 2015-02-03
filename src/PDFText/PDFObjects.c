@@ -17,6 +17,7 @@
 	void pdf_free_dict(pdf_obj *obj);
 	void pdf_free_array(pdf_obj *obj);
 	char *pdf_to_name(pdf_obj *obj);
+	void pdf_array_grow(pdf_obj *obj);
 	void pdf_free_trailer(pdf_obj *obj);
 	pdf_obj *pdf_keep_obj(pdf_obj *obj);
 	pdf_obj *pdf_new_name(const char *str);
@@ -32,6 +33,19 @@
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	void pdf_array_grow(pdf_obj *obj){
+		int i;
+		int new_cap = (obj->u.a.cap * 3) / 2;
+
+		obj->u.a.items=(pdf_obj**)PDFReAlloc(obj->u.a.items, sizeof(pdf_obj*)*(unsigned)new_cap);
+		obj->u.a.cap = new_cap;
+
+		for (i = obj->u.a.len ; i < obj->u.a.cap; i++){
+			obj->u.a.items[i] = NULL;
+		}
+	}
+
 
 	pdf_obj *pdf_new_bool(int b){
 		pdf_obj *obj;
@@ -105,8 +119,8 @@
 		obj->u.a.len = 0;
 		obj->u.a.cap = initialcap > 1 ? initialcap : 6;
 
-		obj->u.d.items=(struct keyval*)PDFMalloc(sizeof(struct keyval)*(unsigned)obj->u.d.cap);
-		memset(obj->u.d.items, 0, (sizeof(struct keyval)));
+		obj->u.a.items=(pdf_obj**)PDFMalloc(sizeof(pdf_obj*)*(unsigned)obj->u.d.cap);
+		memset(obj->u.d.items, 0, (sizeof(pdf_obj*)*(unsigned)obj->u.d.cap  ));
 
 		for (i = 0; i < obj->u.a.cap; i++){
 			obj->u.a.items[i] = NULL;
@@ -157,6 +171,10 @@
 		obj->kind = PDF_NAME;
 		obj->flags = 0;
 		obj->parent_num = 0;
+
+		obj->u.n=(char *)PDFMalloc(strlen(str)+10);
+		memset(obj->u.n, 0, strlen(str)+10);
+
 		strcpy(obj->u.n, str);
 
 		return obj;
@@ -332,6 +350,9 @@
 		if (--obj->refs){
 			return;
 		}
+		if ( obj->kind == PDF_NAME ){
+			PDFFree(obj->u.n);
+		}
 		if (obj->kind == PDF_ARRAY){
 			pdf_free_array(obj);
 		}else if (obj->kind == PDF_DICT){
@@ -368,8 +389,7 @@
 			exit(0);
 		}else{
 			if ((unsigned)obj->u.a.len + 1 > (unsigned)obj->u.a.cap){
-				printf("pdf_array_grow(obj);\n");
-				exit(0);
+				pdf_array_grow(obj);
 			}
 			obj->u.a.items[obj->u.a.len] = pdf_keep_obj(item);
 			obj->u.a.len++;

@@ -584,8 +584,13 @@
 					//need to resolve the indirect object
 					pages = pdf_resolve_indirect(doc, pages);
 
+					pdf_obj *count;
+					count = pdf_dict_gets(pages, "Count");
 
-
+					//It is important to note that these are not the final page
+					//in the document they can be less or more but it is the
+					//rough estimate
+					doc->page_count=pdf_to_int(count);
 				}
 			}else{
 				printf("root doesn't point to indirect object\n");

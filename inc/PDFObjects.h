@@ -94,7 +94,7 @@
 					int 		len;
 					char 		*buf;
 				} s;
-				char n[1];
+				char *n;
 				struct {
 					int 		len;
 					int 		cap;

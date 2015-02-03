@@ -28,6 +28,7 @@
 		//Calling the text extraction the File
 		PDFTextExtraction("docs/judfile2.pdf");
 		PDFTextExtraction("docs/08_01_2015_56.pdf");
+		PDFTextExtraction("docs/2.pdf");
 
 		return 0;
 	}
