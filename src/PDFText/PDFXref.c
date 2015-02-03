@@ -309,14 +309,14 @@
 
 		//Finding XRefStm section
 		pdf_obj *XRefStm;
-		XRefStm=pdf_dict_gets(trailer, "XRefStm");
+		XRefStm=pdf_dict_gets(doc, trailer, "XRefStm");
 
 		if ( XRefStm ){
 			printf("XRefStm has been found in document\n");
 			exit(0);
 		}
 
-		XRefStm=pdf_dict_gets(trailer, "Prev");
+		XRefStm=pdf_dict_gets(doc, trailer, "Prev");
 		if ( XRefStm ){
 			prevofs=pdf_to_int(XRefStm) + doc->overhead;
 		}
@@ -567,7 +567,7 @@
 		pdf_xref *xref = &doc->xref_sections[0];
 
 		//now we have our root object
-		pdf_obj *root = pdf_dict_gets(xref->trailer, "Root");
+		pdf_obj *root = pdf_dict_gets(doc, xref->trailer, "Root");
 
 		//if we have our root object
 		if ( root ){
@@ -578,14 +578,14 @@
 				root = pdf_resolve_indirect(doc, root);
 
 				pdf_obj *pages;
-				pages = pdf_dict_gets(root, "Pages");
+				pages = pdf_dict_gets(doc, root, "Pages");
 
 				if ( pages && pages->kind == PDF_INDIRECT){
 					//need to resolve the indirect object
 					pages = pdf_resolve_indirect(doc, pages);
 
 					pdf_obj *count;
-					count = pdf_dict_gets(pages, "Count");
+					count = pdf_dict_gets(doc, pages, "Count");
 
 					//It is important to note that these are not the final page
 					//in the document they can be less or more but it is the

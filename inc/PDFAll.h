@@ -49,6 +49,10 @@
 			#include <PDFDocument.h>
 		#endif
 
+		#ifndef		_PDFPages_
+			#include <PDFPages.h>
+		#endif
+
 		//Endling of alignment
 		#pragma		pack(pop)
 	#endif

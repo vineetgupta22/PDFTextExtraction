@@ -127,7 +127,6 @@
 		x = pdf_get_xref_entry(doc, num);
 
 		if (x->obj != NULL){
-			printf("we have already resolved entry thus return it\n");
 			return x;
 		}
 

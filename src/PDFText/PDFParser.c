@@ -112,18 +112,26 @@
 
 			if (tok != PDF_TOK_INT && tok != PDF_TOK_R){
 				if (n > 0){
-					printf("n>0\n");
-					exit(0);
+					obj = pdf_new_int(a);
+					pdf_array_push(doc, ary, obj);
+					pdf_drop_obj(obj);
+					obj = NULL;
 				}
 				if (n > 1){
-					printf("n>1\n");
-					exit(0);
+					obj = pdf_new_int(b);
+					pdf_array_push(doc, ary, obj);
+					pdf_drop_obj(obj);
+					obj = NULL;
 				}
 				n=0;
 			}
 			if (tok == PDF_TOK_INT && n == 2){
-				printf("n==2\n");
-				exit(0);
+				obj = pdf_new_int(a);
+				pdf_array_push(doc, ary, obj);
+				pdf_drop_obj(obj);
+				obj = NULL;
+				a = b;
+				n --;
 			}
 			switch (tok){
 				case PDF_TOK_CLOSE_ARRAY:
@@ -154,8 +162,11 @@
 					printf("PDF_TOK_OPEN_DICT\n");
 					exit(0);
 				case PDF_TOK_NAME:
-					printf("PDF_TOK_NAME\n");
-					exit(0);
+					obj = pdf_new_name(buf->scratch);
+					pdf_array_push(doc, ary, obj);
+					pdf_drop_obj(obj);
+					obj = NULL;
+					break;
 				case PDF_TOK_REAL:
 					printf("PDF_TOK_REAL\n");
 					exit(0);

@@ -150,6 +150,18 @@
 	void pdf_init_document(pdf_document *doc){
 		//Sending to load the xref sections of pdf file
 		pdf_load_xref(doc, &doc->lexbuf.base);
+
+		//The rough estimate of pages we already know now its time to
+		//load page one by one
+		/**
+		*	Note: In PDF Page Numbers starts from 0
+		**/
+		int i;
+		for(i=0; i<doc->page_count; i++){
+			pdf_load_page(doc, i);
+			if ( i==2)
+				break;
+		}
 	}
 
 

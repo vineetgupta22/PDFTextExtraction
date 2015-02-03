@@ -14,6 +14,7 @@
 	pdf_obj *pdf_new_int(int i);
 	int pdf_to_int(pdf_obj *obj);
 	void pdf_drop_obj(pdf_obj *obj);
+	int pdf_array_len(pdf_obj *obj);
 	void pdf_free_dict(pdf_obj *obj);
 	void pdf_free_array(pdf_obj *obj);
 	char *pdf_to_name(pdf_obj *obj);
@@ -23,16 +24,57 @@
 	pdf_obj *pdf_new_name(const char *str);
 	pdf_obj *pdf_new_indirect(int num, int gen);
 	int pdf_find_obj(pdf_obj *obj, const char *key);
+	int pdf_mark_obj(pdf_document *doc, pdf_obj *obj);
 	pdf_obj *pdf_new_string(const char *str, int len);
-	pdf_obj *pdf_dict_gets(pdf_obj *obj, const char *key);
+	void pdf_unmark_obj(pdf_document *doc, pdf_obj *obj);
 	int pdf_dict_finds(pdf_obj *obj, const char *key, int *location);
 	void object_altered(pdf_document *doc, pdf_obj *obj, pdf_obj *val);
 	void pdf_array_push(pdf_document *doc, pdf_obj *obj, pdf_obj *item);
+	pdf_obj *pdf_dict_gets(pdf_document *doc, pdf_obj *obj, const char *key);
 	void pdf_dict_put(pdf_document *doc, pdf_obj *obj, pdf_obj *key, pdf_obj *val);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	void pdf_unmark_obj(pdf_document *doc, pdf_obj *obj){
+		do {
+			if (obj && obj->kind == PDF_INDIRECT){
+				obj = pdf_resolve_indirect(doc, obj);
+			}
+		} while (0);
+		if (!obj)
+			return;
+		obj->flags = (unsigned char)(obj->flags & ~PDF_FLAGS_MARKED);
+	}
+
+
+	int pdf_mark_obj(pdf_document *doc, pdf_obj *obj){
+		int marked;
+		do {
+			if (obj && obj->kind == PDF_INDIRECT){
+				obj = pdf_resolve_indirect(doc, obj);
+			}
+		} while (0);
+		if (!obj)
+			return 0;
+		marked = !!(obj->flags & PDF_FLAGS_MARKED);
+		obj->flags |= PDF_FLAGS_MARKED;
+		return marked;
+	}
+
+
+	int pdf_array_len(pdf_obj *obj){
+		do {
+			if (obj && obj->kind == PDF_INDIRECT){
+				printf("obj = pdf_resolve_indirect(obj);\n");
+				exit(0);
+			}
+		} while (0);
+		if (!obj || obj->kind != PDF_ARRAY)
+			return 0;
+		return obj->u.a.len;
+	}
 
 	void pdf_array_grow(pdf_obj *obj){
 		int i;
@@ -399,11 +441,10 @@
 	}
 
 
-	pdf_obj *pdf_dict_gets(pdf_obj *obj, const char *key){
+	pdf_obj *pdf_dict_gets(pdf_document *doc, pdf_obj *obj, const char *key){
 		do {
 			if (obj && obj->kind == PDF_INDIRECT){
-				printf("obj = pdf_resolve_indirect(obj);\n");
-				exit(0);
+				obj = pdf_resolve_indirect(doc, obj);
 			}
 		} while (0);
 
