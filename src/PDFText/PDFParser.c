@@ -9,6 +9,7 @@
 
 
 	/***************************** Starting Prototypes ********************/
+	fz_rect *pdf_to_rect(pdf_obj *array, fz_rect *r);
 	pdf_obj *pdf_parse_array(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf);
 	pdf_trailer *pdf_parse_dict(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf);
 	pdf_obj *pdf_parse_ind_obj(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf, int *onum, int *ogen, int *ostmofs);
@@ -16,6 +17,18 @@
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	fz_rect *pdf_to_rect(pdf_obj *array, fz_rect *r){
+		float a = pdf_to_real(pdf_array_get(array, 0));
+		float b = pdf_to_real(pdf_array_get(array, 1));
+		float c = pdf_to_real(pdf_array_get(array, 2));
+		float d = pdf_to_real(pdf_array_get(array, 3));
+		r->x0 = fz_min(a, c);
+		r->y0 = fz_min(b, d);
+		r->x1 = fz_max(a, c);
+		r->y1 = fz_max(b, d);
+		return r;
+	}
 
 
 	pdf_obj *pdf_parse_ind_obj(pdf_document *doc PDFUnused, pdf_stream *file, pdf_lexbuf *buf, int *onum PDFUnused, int *ogen PDFUnused, int *ostmofs PDFUnused){

@@ -66,6 +66,7 @@
 		extern void pdf_load_xref(pdf_document *doc, pdf_lexbuf *buf);
 
 		//Functions defined under src/PDFParser.c
+		extern fz_rect *pdf_to_rect(pdf_obj *array, fz_rect *r);
 		extern pdf_trailer *pdf_parse_dict(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf);
 		extern pdf_obj *pdf_parse_ind_obj(pdf_document *doc, pdf_stream *file, pdf_lexbuf *buf, int *onum, int *ogen, int *ostmofs);
 
@@ -74,6 +75,7 @@
 		extern int pdf_to_int(pdf_obj *obj);
 		extern pdf_obj *pdf_new_bool(int b);
 		extern pdf_obj *pdf_new_dict(void);
+		extern float pdf_to_real(pdf_obj *obj);
 		extern char *pdf_to_name(pdf_obj *obj);
 		extern void pdf_drop_obj(pdf_obj *obj);
 		extern int pdf_array_len(pdf_obj *obj);

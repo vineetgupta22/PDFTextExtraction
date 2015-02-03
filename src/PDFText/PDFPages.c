@@ -10,12 +10,38 @@
 
 	/***************************** Starting Prototypes ********************/
 	void pdf_load_page(pdf_document *doc, int number);
+	pdf_obj *pdf_lookup_inherited_page_item(pdf_document *doc, pdf_obj *node, const char *key);
 	pdf_obj *pdf_lookup_page_loc(pdf_document *doc, int needle, pdf_obj **parentp, int *indexp);
 	pdf_obj *pdf_lookup_page_loc_imp(pdf_document *doc, pdf_obj *node, int *skip, pdf_obj **parentp, int *indexp);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
+	#define			fz_is_empty_rect(r)				((r)->x0 == (r)->x1 || (r)->y0 == (r)->y1)
 	/***************************** Global Variables ********************/
+
+
+	pdf_obj *pdf_lookup_inherited_page_item(pdf_document *doc, pdf_obj *node, const char *key){
+		pdf_obj *node2 = node;
+		pdf_obj *val;
+		do{
+			val = pdf_dict_gets(doc, node, key);
+			if (val)
+				break;
+			if (pdf_mark_obj(doc, node)){
+				printf("cycle in page tree (parents)\n");
+				exit(0);
+			}
+			node = pdf_dict_gets(doc, node, "Parent");
+		}while (node);
+
+		do{
+			pdf_unmark_obj(doc, node2);
+			if (node2 == node)
+				break;
+			node2 = pdf_dict_gets(doc, node2, "Parent");
+		}while (node2);
+		return val;
+	}
 
 	pdf_obj *pdf_lookup_page_loc_imp(pdf_document *doc, pdf_obj *node, int *skip, pdf_obj **parentp, int *indexp){
 		pdf_obj *hit = NULL;
@@ -112,15 +138,67 @@
 		return hit;
 	}
 
-	void pdf_load_page(pdf_document *doc, int number){
+	void pdf_load_page(pdf_document *doc PDFUnused, int number){
 		printf("Reached to load page No.%d\n", number);
-		PDFUnused pdf_obj *pageref, *pageobj;
+		pdf_obj *pageref, *pageobj;
+		pdf_obj *obj;
+		pdf_page *page;
+		float userunit;
+		PDFUnused fz_rect mediabox;
 
 		//First we need to get the page reference object
 		pageref = pdf_lookup_page_loc(doc, number, NULL, NULL);
 
 		//Resolving pageobj
 		pageobj = pdf_resolve_indirect(doc, pageref);
+
+		page = (pdf_page*)PDFMalloc(sizeof(pdf_page));
+		memset(page, 0, sizeof(pdf_page));
+
+		page->annot_tailp = &page->annots;
+		page->me = pdf_keep_obj(pageobj);
+
+		//Any measurement unit defined in document
+		obj = pdf_dict_gets(doc, pageobj, "UserUnit");
+		if ( obj ){
+			printf("\n\nobj->kind=%c\n\n", obj->kind);
+			exit(0);
+		}else{
+			userunit=1;
+		}
+
+		//Getting the Printing Area
+		pdf_to_rect(pdf_lookup_inherited_page_item(doc, pageobj, "MediaBox"), &mediabox);
+		if (fz_is_empty_rect(&mediabox)){
+			printf("cannot find page size for page %d\n", number + 1);
+			exit(0);
+		}
+
+		page->mediabox.x0 = fz_min(mediabox.x0, mediabox.x1) * userunit;
+		page->mediabox.y0 = fz_min(mediabox.y0, mediabox.y1) * userunit;
+		page->mediabox.x1 = fz_max(mediabox.x0, mediabox.x1) * userunit;
+		page->mediabox.y1 = fz_max(mediabox.y0, mediabox.y1) * userunit;
+
+		//Getting document resources
+		page->resources = pdf_lookup_inherited_page_item(doc, pageobj, "Resources");
+
+		//We need to get the font names and types
+		if ( page->resources && page->resources->kind == PDF_INDIRECT){
+			//need to resolve the indirect object
+			obj = pdf_resolve_indirect(doc, page->resources);
+
+			obj = pdf_dict_gets(doc, page->resources, "Font");
+			if ( obj && obj->kind == PDF_INDIRECT){
+				//Now the obj would be holding all the fonts used in page
+				obj=pdf_resolve_indirect(doc, obj);
+
+				//obj is still a dictionary we have to extract the font names
+				//from it defining as bold, italics, underline, normal
+				//As PDF Document Manual describes each font separately
+			}
+		}
+		pdf_drop_obj(page->me);
+		PDFFree(page);
 	}
 
 	C_MODE_END

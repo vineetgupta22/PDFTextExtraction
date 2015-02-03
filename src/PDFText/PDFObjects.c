@@ -16,6 +16,7 @@
 	void pdf_drop_obj(pdf_obj *obj);
 	int pdf_array_len(pdf_obj *obj);
 	void pdf_free_dict(pdf_obj *obj);
+	float pdf_to_real(pdf_obj *obj);
 	void pdf_free_array(pdf_obj *obj);
 	char *pdf_to_name(pdf_obj *obj);
 	void pdf_array_grow(pdf_obj *obj);
@@ -36,6 +37,25 @@
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	float pdf_to_real(pdf_obj *obj){
+		do {
+			if (obj && obj->kind == PDF_INDIRECT){
+				printf("obj = pdf_resolve_indirect(doc, obj);\n");
+				exit(0);
+			}
+		} while (0);
+		if (!obj)
+			return 0;
+		if (obj->kind == PDF_REAL){
+			return obj->u.f;
+		}
+		if (obj->kind == PDF_INT){
+			return (float)obj->u.i;
+		}
+		return 0;
+	}
+
 
 	void pdf_unmark_obj(pdf_document *doc, pdf_obj *obj){
 		do {
