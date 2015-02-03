@@ -10,6 +10,7 @@
 
 	/***************************** Starting Prototypes ********************/
 	pdf_obj *pdf_new_dict(void);
+	pdf_obj *pdf_new_bool(int b);
 	pdf_obj *pdf_new_int(int i);
 	int pdf_to_int(pdf_obj *obj);
 	void pdf_drop_obj(pdf_obj *obj);
@@ -31,6 +32,21 @@
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	pdf_obj *pdf_new_bool(int b){
+		pdf_obj *obj;
+
+		obj =(pdf_obj*)PDFMalloc(sizeof(pdf_obj));
+		memset(obj, 0, sizeof(pdf_obj));
+
+		obj->refs = 1;
+		obj->kind = PDF_BOOL;
+		obj->flags = 0;
+		obj->parent_num = 0;
+		obj->u.b = b;
+		return obj;
+	}
+
 
 	int pdf_to_int(pdf_obj *obj){
 		do {

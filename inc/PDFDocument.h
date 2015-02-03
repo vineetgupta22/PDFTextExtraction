@@ -223,6 +223,12 @@
 			*	@brief		:			Total xref section in PDF File
 			**/
 			int							total_xref_sections;
+
+			/**
+			*	@var		:			page_count
+			*	@brief		:			Total Number of Pages found in PDF File
+			**/
+			int 						page_count;
 		};
 
 		extern int errno;

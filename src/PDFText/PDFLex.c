@@ -26,6 +26,7 @@
 	int unhex(int ch);
 	void lex_white(pdf_stream *f);
 	pdf_token pdf_token_from_keyword(char *key);
+	int lex_string(pdf_stream *f, pdf_lexbuf *lb);
 	void lex_name(pdf_stream *f, pdf_lexbuf *buf);
 	int lex_hex_string(pdf_stream *f, pdf_lexbuf *lb);
 	pdf_token pdf_lex(pdf_stream *f, pdf_lexbuf *buf);
@@ -35,6 +36,44 @@
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	int lex_string(pdf_stream *f, pdf_lexbuf *lb){
+		char *s = lb->scratch;
+		char *e = s + lb->size;
+		int c ;
+		int bal = 1;
+
+		while (1){
+			if (s == e){
+				printf("s==e\n");
+				exit(0);
+			}
+			c = pdf_read_byte(f);
+			switch (c){
+				case EOF:
+					goto end;
+				case '(':
+					bal++;
+					*s++ = (char)c;
+					break;
+				case ')':
+					bal --;
+					if (bal == 0)
+						goto end;
+					*s++ = (char)c;
+					break;
+				case '\\':
+					printf("\\\n");
+					exit(0);
+				default:
+					*s++ = (char)c;
+					break;
+			}
+		}
+end:
+		lb->len = s - lb->scratch;
+		return PDF_TOK_STRING;
+	}
 
 	int unhex(int ch){
 		if (ch >= '0' && ch <= '9') return ch - '0';
@@ -280,9 +319,7 @@ end:
 					return PDF_TOK_NAME;
 					break;
 				case '(':
-					printf("return lex_string(f, buf);");
-					exit(0);
-					break;
+					return lex_string(f, buf);
 				case ')':
 					printf("lexical error (unexpected ')')");
 					continue;

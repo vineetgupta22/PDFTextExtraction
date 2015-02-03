@@ -72,6 +72,7 @@
 		//Functions defined under src/PDFObjects.c
 		extern pdf_obj *pdf_new_int(int i);
 		extern int pdf_to_int(pdf_obj *obj);
+		extern pdf_obj *pdf_new_bool(int b);
 		extern pdf_obj *pdf_new_dict(void);
 		extern void pdf_drop_obj(pdf_obj *obj);
 		extern pdf_obj *pdf_keep_obj(pdf_obj *obj);

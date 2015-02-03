@@ -224,8 +224,7 @@ end:
 					val = pdf_parse_array(doc, file, buf);
 					break;
 				case PDF_TOK_OPEN_DICT:
-					printf("PDF_TOK_OPEN_DICT\n");
-					exit(0);
+					val = pdf_parse_dict(doc, file, buf);
 					break;
 				case PDF_TOK_NAME:
 					val = pdf_new_name(buf->scratch);
@@ -235,12 +234,10 @@ end:
 					exit(0);
 					break;
 				case PDF_TOK_STRING:
-					printf("PDF_TOK_STRING\n");
-					exit(0);
+					val = pdf_new_string(buf->scratch, buf->len);
 					break;
 				case PDF_TOK_TRUE:
-					printf("PDF_TOK_TRUE\n");
-					exit(0);
+					val = pdf_new_bool(1);
 					break;
 				case PDF_TOK_FALSE:
 					printf("PDF_TOK_FALSE\n");

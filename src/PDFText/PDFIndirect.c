@@ -47,7 +47,6 @@
 				for (sub = xref->subsec; sub != NULL; sub = sub->next){
 					pdf_xref_entry *entry;
 					if (i < sub->start || i >= sub->start + sub->len){
-						printf("continue\n");
 						continue;
 					}
 

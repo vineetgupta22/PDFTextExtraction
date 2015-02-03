@@ -86,6 +86,8 @@
 			int f=sub->len;
 			printf("Xref SubSection[%d] Offsets filled in document \t=\t%d\n", j, f);
 		}
+
+		printf("Total Number of Pages Found in Root=>Catalogue \t=\t%d\n", doc->page_count);
 		
 		pdf_cleanup(doc);
 	}
