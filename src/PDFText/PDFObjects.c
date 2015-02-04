@@ -12,7 +12,6 @@
 	pdf_obj *pdf_new_dict(void);
 	pdf_obj *pdf_new_bool(int b);
 	pdf_obj *pdf_new_int(int i);
-	int pdf_to_int(pdf_obj *obj);
 	void pdf_drop_obj(pdf_obj *obj);
 	int pdf_array_len(pdf_obj *obj);
 	void pdf_free_dict(pdf_obj *obj);
@@ -27,6 +26,7 @@
 	pdf_obj *pdf_new_name(const char *str);
 	pdf_obj *pdf_new_indirect(int num, int gen);
 	int pdf_find_obj(pdf_obj *obj, const char *key);
+	int pdf_to_int(pdf_document *doc, pdf_obj *obj);
 	int pdf_mark_obj(pdf_document *doc, pdf_obj *obj);
 	pdf_obj *pdf_new_string(const char *str, int len);
 	void pdf_unmark_obj(pdf_document *doc, pdf_obj *obj);
@@ -153,11 +153,10 @@
 	}
 
 
-	int pdf_to_int(pdf_obj *obj){
+	int pdf_to_int(pdf_document *doc, pdf_obj *obj){
 		do {
 			if (obj && obj->kind == PDF_INDIRECT){
-				printf("obj = pdf_resolve_indirect(obj);\n");
-				exit(0);
+				obj = pdf_resolve_indirect(doc, obj);
 			}
 		} while (0);
 

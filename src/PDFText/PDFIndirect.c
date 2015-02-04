@@ -36,8 +36,6 @@
 			j=0;
 		}
 
-		printf("object number %d location in xref_section[%d]\n", i, j);
-
 		/* Find the first xref section where the entry is defined. */
 		for (; j < doc->total_xref_sections; j++){
 			xref = &doc->xref_sections[j];

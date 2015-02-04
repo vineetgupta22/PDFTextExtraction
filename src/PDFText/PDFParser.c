@@ -34,18 +34,18 @@
 	pdf_obj *pdf_parse_ind_obj(pdf_document *doc PDFUnused, pdf_stream *file, pdf_lexbuf *buf, int *onum PDFUnused, int *ogen PDFUnused, int *ostmofs PDFUnused){
 		pdf_obj *obj = NULL;
 		pdf_token tok;
-		int num = 0, gen = 0, stm_ofs = 0;
+		int num = 0, gen = 0, stm_ofs = 0, a, b;
 
 		tok = pdf_lex(file, buf);
 		if (tok != PDF_TOK_INT){
-			printf("expected object number\n");
+			printf("abc expected object number\n");
 			exit(0);
 		}
 		num = buf->i;
 
 		tok = pdf_lex(file, buf);
 		if (tok != PDF_TOK_INT){
-			printf("expected generation number (%d ? obj)\n", num);
+			printf("def expected generation number (%d ? obj)\n", num);
 			exit(0);
 		}
 		gen = buf->i;
@@ -82,7 +82,21 @@
 				printf("PDF_TOK_NULL\n");
 				exit(0);
 			case PDF_TOK_INT:
-				printf("PDF_TOK_INT\n");
+				a = buf->i;
+				tok = pdf_lex(file, buf);
+				if (tok == PDF_TOK_STREAM || tok == PDF_TOK_ENDOBJ){
+					obj = pdf_new_int(a);
+					goto skip;
+				}
+				if (tok == PDF_TOK_INT){
+					b = buf->i;
+					tok = pdf_lex(file, buf);
+					if (tok == PDF_TOK_R){
+						obj = pdf_new_indirect(a, b);
+						break;
+					}
+				}
+				printf("expected 'R' keyword (%d %d R)", num, gen);
 				exit(0);
 			case PDF_TOK_ENDOBJ:
 				printf("PDF_TOK_ENDOBJ\n");
@@ -93,9 +107,24 @@
 		}
 
 		tok = pdf_lex(file, buf);
+	skip:
 		if (tok == PDF_TOK_STREAM){
-			printf("PDF_TOK_STREAM\n");
-			exit(0);
+			int c = pdf_read_byte(file);
+
+			while (c == ' '){
+				c = pdf_read_byte(file);
+			}
+			if (c == '\r'){
+				c = pdf_peek_byte(file);
+				if (c != '\n'){
+					printf("line feed missing after stream begin marker (%d %d R)", num, gen);
+					exit(0);
+				}else{
+					pdf_read_byte(file);
+				}
+			}
+			stm_ofs = pdf_tell(file);
+			printf("location=%d and number=%d\n", stm_ofs, num);
 		}else if (tok == PDF_TOK_ENDOBJ){
 			stm_ofs = 0;
 		}else{

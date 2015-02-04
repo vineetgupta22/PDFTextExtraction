@@ -110,7 +110,6 @@
 			xref->objects = new_max;
 
 			if (doc->max_xref_len < new_max){
-				printf("doc->max_xref_len=%d; new_max=%d\n", doc->max_xref_len, new_max);
 				extend_xref_index(doc, new_max);
 			}
 		}else{
@@ -318,7 +317,7 @@
 
 		XRefStm=pdf_dict_gets(doc, trailer, "Prev");
 		if ( XRefStm ){
-			prevofs=pdf_to_int(XRefStm) + doc->overhead;
+			prevofs=pdf_to_int(doc, XRefStm) + doc->overhead;
 		}
 
 		//temprory
@@ -590,7 +589,7 @@
 					//It is important to note that these are not the final page
 					//in the document they can be less or more but it is the
 					//rough estimate
-					doc->page_count=pdf_to_int(count);
+					doc->page_count=pdf_to_int(doc, count);
 				}
 			}else{
 				printf("root doesn't point to indirect object\n");
