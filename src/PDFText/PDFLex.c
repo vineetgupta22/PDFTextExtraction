@@ -129,16 +129,18 @@ end:
 	*	ignoring done by this function
 	**/
 	int lex_number(pdf_stream *f, pdf_lexbuf *buf, int c){
-		int i=0;
+		int neg = 0;
+		int i = 0;
+		int n;
+		int d;
+		float v;
+
 		/* Initially we might have +, -, . or a digit */
 		switch (c){
 			case '.':
-				printf("received dot");
-				exit(0);
-				break;
+				goto loop_after_dot;
 			case '-':
-				printf("received negative");
-				exit(0);
+				neg = 1;
 				break;
 			case '+':
 				break;
@@ -152,18 +154,44 @@ end:
 			c = pdf_read_byte(f);
 			switch (c){
 				case '.':
-					printf("received dot");
-					exit(0);
-					break;
+					goto loop_after_dot;
 				case RANGE_0_9:
 					i = 10*i + c - '0';
 					break;
 				default:
 					pdf_unread_byte(f);
 				case EOF:
-
+					if (neg)
+						i = -i;
 				buf->i = i;
 				return PDF_TOK_INT;
+			}
+		}
+
+	loop_after_dot:
+		/* In here, we've seen a dot, so can accept just digits */
+
+		n = 0;
+		d = 1;
+		while (1){
+			c = pdf_read_byte(f);
+			switch (c){
+				case RANGE_0_9:
+					if (d >= INT_MAX/10){
+						printf("goto underflow;");
+						exit(0);
+					}
+					n = n*10 + (c - '0');
+					d *= 10;
+					break;
+				default:
+					pdf_unread_byte(f);
+				case EOF:
+					v = (float)i + ((float)n / (float)d);
+					if (neg)
+						v = -v;
+					buf->f = v;
+					return PDF_TOK_REAL;
 			}
 		}
 	}

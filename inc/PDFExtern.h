@@ -77,6 +77,7 @@
 		extern pdf_obj *pdf_new_dict(void);
 		extern float pdf_to_real(pdf_obj *obj);
 		extern char *pdf_to_name(pdf_obj *obj);
+		extern pdf_obj *pdf_new_real(float f);
 		extern void pdf_drop_obj(pdf_obj *obj);
 		extern int pdf_array_len(pdf_obj *obj);
 		extern pdf_obj *pdf_keep_obj(pdf_obj *obj);

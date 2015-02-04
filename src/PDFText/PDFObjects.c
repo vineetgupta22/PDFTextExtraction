@@ -19,6 +19,8 @@
 	float pdf_to_real(pdf_obj *obj);
 	void pdf_free_array(pdf_obj *obj);
 	char *pdf_to_name(pdf_obj *obj);
+	pdf_obj *pdf_new_real(float f);
+	void pdf_dict_grow(pdf_obj *obj);
 	void pdf_array_grow(pdf_obj *obj);
 	void pdf_free_trailer(pdf_obj *obj);
 	pdf_obj *pdf_keep_obj(pdf_obj *obj);
@@ -108,6 +110,33 @@
 		}
 	}
 
+	void pdf_dict_grow(pdf_obj *obj){
+		int i;
+		int new_cap = (obj->u.d.cap * 3) / 2;
+
+		obj->u.d.items = (struct keyval*)PDFReAlloc(obj->u.d.items, sizeof(struct keyval)*(unsigned)new_cap);;
+		obj->u.d.cap = new_cap;
+
+		for (i = obj->u.d.len; i < obj->u.d.cap; i++){
+			obj->u.d.items[i].k = NULL;
+			obj->u.d.items[i].v = NULL;
+		}
+	}
+
+	pdf_obj *pdf_new_real(float f){
+		pdf_obj *obj;
+
+		obj =(pdf_obj*)PDFMalloc(sizeof(pdf_obj));
+		memset(obj, 0, sizeof(pdf_obj));
+
+		obj->refs = 1;
+		obj->kind = PDF_REAL;
+		obj->flags = 0;
+		obj->parent_num = 0;
+		obj->u.f = f;
+
+		return obj;
+	}
 
 	pdf_obj *pdf_new_bool(int b){
 		pdf_obj *obj;
@@ -336,8 +365,7 @@
 			exit(0);
 		}else{
 			if ( (unsigned)obj->u.d.len + 1 > (unsigned)obj->u.d.cap){
-				printf("pdf_dict_grow(obj);\n");
-				exit(0);
+				pdf_dict_grow(obj);
 			}
 
 			i = location;

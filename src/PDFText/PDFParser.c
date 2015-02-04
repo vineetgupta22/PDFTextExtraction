@@ -67,7 +67,7 @@
 				printf("PDF_TOK_NAME\n");
 				exit(0);
 			case PDF_TOK_REAL:
-				printf("PDF_TOK_REAL\n");
+				printf("abc PDF_TOK_REAL\n");
 				exit(0);
 			case PDF_TOK_STRING:
 				printf("PDF_TOK_STRING\n");
@@ -181,8 +181,11 @@
 					obj = NULL;
 					break;
 				case PDF_TOK_REAL:
-					printf("PDF_TOK_REAL\n");
-					exit(0);
+					obj = pdf_new_real(buf->f);
+					pdf_array_push(doc, ary, obj);
+					pdf_drop_obj(obj);
+					obj = NULL;
+					break;
 				case PDF_TOK_STRING:
 					obj = pdf_new_string(buf->scratch, buf->len);
 					pdf_array_push(doc, ary, obj);
@@ -254,7 +257,7 @@ end:
 					val = pdf_new_name(buf->scratch);
 					break;
 				case PDF_TOK_REAL:
-					printf("PDF_TOK_REAL\n");
+					printf("lmn PDF_TOK_REAL\n");
 					exit(0);
 					break;
 				case PDF_TOK_STRING:

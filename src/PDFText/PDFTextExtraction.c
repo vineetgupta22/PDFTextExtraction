@@ -159,8 +159,6 @@
 		int i;
 		for(i=0; i<doc->page_count; i++){
 			pdf_load_page(doc, i);
-			if ( i==2)
-				break;
 		}
 	}
 

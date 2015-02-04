@@ -82,6 +82,12 @@
 			char 				*scratch;
 
 			/**
+			*	@var	:		f
+			*	@brief	:		For storage of float value
+			**/
+			float				f;
+
+			/**
 			*	@var	:		buffer
 			*	@brief	:		Extra buffer if required for storage
 			**/
