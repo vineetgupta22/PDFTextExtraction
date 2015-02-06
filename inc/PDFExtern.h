@@ -97,9 +97,16 @@
 		extern pdf_xref_entry *pdf_get_xref_entry(pdf_document *doc, int i);
 		extern pdf_xref_entry *pdf_cache_object(pdf_document *doc, int num, int gen);
 		extern pdf_obj *pdf_array_get(pdf_obj *obj, int i);
+		extern pdf_obj *pdf_dict_get_val(pdf_obj *obj, int i);
 
 		//Function defined in src/PDFPages.c
 		extern void pdf_load_page(pdf_document *doc, int number);
+
+		//Function defined in src/PDFFonts.c
+		extern void pdf_font_load(pdf_document *doc, pdf_obj *obj);
+
+		//Function defined in src/PDFFonts_TT.c
+		extern void pdf_load_font_tt(pdf_document *doc, pdf_obj *obj);
 
 		//Function defined in src/PDFInflate.c
 		extern char *pdf_inflate(pdf_stream *file, int offset);

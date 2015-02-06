@@ -19,6 +19,8 @@ FILES = PDFInflate.c						\
 		PDFFileStream.c						\
 		PDFLex.c							\
 		PDFMem.c							\
+		PDFFonts.c							\
+		PDFFonts_TT.c						\
 		PDFTextExtraction.c
 
 

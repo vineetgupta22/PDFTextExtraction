@@ -10,14 +10,12 @@
 
 	/***************************** Starting Prototypes ********************/
 	void pdf_load_page(pdf_document *doc, int number);
-	extern pdf_stream *pdf_open_filter(pdf_stream *chain, pdf_document *doc, pdf_obj *stmobj, int num, int gen, int offset);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
 
 	void pdf_load_page(pdf_document *doc, int number){
-		printf("Reached to load page number = %03d\n", number+1);
 		pdf_obj *hit=NULL;
 		pdf_obj *kids = NULL;
 		int len, i;
@@ -114,38 +112,14 @@
 		//Resolving pageobj
 		pageobj = pdf_resolve_indirect(doc, hit);
 
-		//Any measurement unit defined in document
-		obj = pdf_dict_gets(doc, pageobj, "UserUnit");
+		obj = pdf_dict_gets(doc, pageobj, "Resources");
 		if ( obj ){
-			printf("\n\nobj->kind=%c\n\n", obj->kind);
-			exit(0);
+			//sending to do things with fonts
+			pdf_font_load(doc, obj);
+		}else{
+			printf("not have object - %c\n", hit->kind);
 		}
 		
-		//Getting the resources from current object
-		obj = pdf_dict_gets(doc, pageobj, "Contents");
-
-		printf("obj->kind=%c", obj->kind);
-
-		pdf_xref_entry *entry;
-		entry = pdf_cache_object(doc, obj->u.r.num, obj->u.r.gen);
-
-		if ( entry->offsets ){
-			char *stream;
-
-			int lenp = pdf_to_int(doc, pdf_dict_gets(doc, obj, "Length"));
-
-			//setting the offset to xref offset provided
-			pdf_seek(doc->file, entry->offsets, PDFSEEK_SET);
-
-			printf("location = %d and len=%d\n", entry->offsets, lenp);
-			stream=pdf_inflate(doc->file, lenp);
-			if ( stream ){
-				printf("Got stream %s\n", stream);
-			}else{
-				printf("Not have a stream\n");
-				exit(0);
-			}
-		}
 	}
 
 	C_MODE_END
