@@ -107,11 +107,19 @@
 
 		//Function defined in src/PDFFonts_TT.c
 		extern void pdf_load_font_tt(pdf_document *doc, pdf_obj *obj);
+		extern int pdf_font_read_short(pdf_stream *file);
+		extern unsigned int pdf_font_read_ulong(pdf_stream *file);
+		extern unsigned int pdf_font_read_ushort(pdf_stream *file);
+		
+		//Function defined in src/PDFFonts_Table_OS2.c
+		extern pdf_ttc_os2 *pdf_font_table_os2(pdf_stream *file, unsigned offset, unsigned length);
+
+		//Function defined in src/PDFFonts_Table_CMAP.c
+		extern pdf_ttc_cmap *pdf_font_table_cmap(pdf_stream *file, unsigned offset, unsigned length);
 
 		//Function defined in src/PDFInflate.c
 		extern char *pdf_inflate(pdf_stream *file, int offset);
 		extern void pdf_inflate2(pdf_stream *file, int offset);
-
 
 		/*********** Starting of Memory Allocation [File = PDFMem.c]***********/
 		//linking to Memory Allocation

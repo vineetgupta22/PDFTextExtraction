@@ -10,8 +10,11 @@
 
 	/***************************** Starting Prototypes ********************/
 	int pdf_font_read_short(pdf_stream *file);
+	unsigned int pdf_font_read_ulong(pdf_stream *file);
+	unsigned int pdf_font_read_ushort(pdf_stream *file);
 	void pdf_load_font_tt(pdf_document *doc, pdf_obj *obj);
 	pdf_font *pdf_start_loading_ttf(pdf_document *doc, const char *file);
+	pdf_font_table *pdf_load_font_tables(pdf_stream *file, int numTables);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
@@ -26,6 +29,64 @@
 
 		return t;
 	}
+	
+	unsigned int pdf_font_read_ulong(pdf_stream *file){
+		int size_ulong = sizeof(unsigned int);
+		unsigned int tmp = 0L;
+		
+		while(size_ulong){
+			tmp += (unsigned long)(pdf_read_byte(file) << ((--size_ulong)<<3));
+		}
+		
+		return tmp;
+	}
+	
+	unsigned int pdf_font_read_ushort(pdf_stream *file){
+		unsigned int t=0;
+		
+		t=(unsigned)pdf_read_byte(file);
+		t=t<<8;
+		t |=(unsigned)pdf_read_byte(file);
+		
+		return t;
+	}
+	
+	pdf_font_table *pdf_load_font_tables(pdf_stream *file, int numTables){
+		pdf_font_table *tables=NULL, *newtable;
+		int i;
+		
+		for(i=0; i<numTables; i++){
+			newtable=(pdf_font_table*)PDFMalloc(sizeof(pdf_font_table));
+			memset(newtable, 0, sizeof(pdf_font_table));
+
+			newtable->name[0]=(char)pdf_read_byte(file);
+			newtable->name[1]=(char)pdf_read_byte(file);
+			newtable->name[2]=(char)pdf_read_byte(file);
+			newtable->name[3]=(char)pdf_read_byte(file);
+			newtable->name[4]='\0';
+			newtable->CheckSum=pdf_font_read_ulong(file);
+			newtable->offset=pdf_font_read_ulong(file);
+			newtable->length=pdf_font_read_ulong(file);
+			
+			printf("TableName=%s, tableCheckSum=%012u, offset=%05u length=%05u\n",
+				newtable->name, newtable->CheckSum, newtable->offset, newtable->length);
+				
+			if ( strcmp(newtable->name, "OS/2") == 0 ){
+				newtable->u.os2=pdf_font_table_os2(file, newtable->offset, newtable->length);
+			}else if ( strcmp(newtable->name, "cmap") == 0 ){
+				newtable->u.cmap=pdf_font_table_cmap(file, newtable->offset, newtable->length);
+			}
+			
+			if ( tables ){
+				newtable->next=tables;
+				tables=newtable;
+			}else{
+				tables=newtable;
+			}
+		}
+
+		return tables;
+	}
 
 	pdf_font *pdf_start_loading_ttf(pdf_document *doc PDFUnused, const char *file){
 		pdf_font *fontfile;
@@ -37,6 +98,13 @@
 		fontfile->file=pdf_keep_stream(pdf_open_file(file));
 
 		fontfile->vmajor=pdf_font_read_short(fontfile->file);
+		fontfile->vminor=pdf_font_read_short(fontfile->file);
+		fontfile->numTables=pdf_font_read_short(fontfile->file);
+		fontfile->searchRange=pdf_font_read_short(fontfile->file);
+		fontfile->entrySelector=pdf_font_read_short(fontfile->file);
+		fontfile->rangeShift=pdf_font_read_short(fontfile->file);
+		
+		fontfile->tables=pdf_load_font_tables(fontfile->file, fontfile->numTables);
 
 		pdf_free_stream(fontfile->file);
 		return fontfile;

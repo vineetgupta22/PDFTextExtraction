@@ -58,6 +58,60 @@
 		for(current=doc->font; current; ){
 			next=current->next;
 
+			//Free font tables
+			pdf_font_table *tcurrent, *tnext;
+			for(tcurrent=current->tables; tcurrent; ){
+				tnext=tcurrent->next;
+
+				if ( strcmp(tcurrent->name, "OS/2") == 0 ){
+					if ( tcurrent->u.os2!= NULL ){
+						PDFFree(tcurrent->u.os2);
+					}
+				}else if ( strcmp(tcurrent->name, "cmap") == 0 ){
+
+					pdf_ttc_cmap *cmap=tcurrent->u.cmap;
+					if ( cmap!=NULL ){
+						if ( cmap->encoding_header != NULL ){
+							pdf_ttc_cmap_encoding_header *ecurrent, *enext;
+							for(ecurrent=cmap->encoding_header; ecurrent; ){
+								enext=ecurrent->next;
+								PDFFree(ecurrent);
+								ecurrent=enext;
+							}
+						}
+
+						if ( cmap->subtable != NULL ){
+							pdf_ttc_cmap_subtable *scurrent, *snext;
+							for(scurrent=cmap->subtable; scurrent; ){
+								snext=scurrent->next;
+								if ( scurrent->format == CMAP_FORMAT0 ){
+									if ( scurrent->u.f0 != NULL ){
+										PDFFree(scurrent->u.f0);
+									}
+								} else if ( scurrent->format == CMAP_FORMAT4 ){
+									if ( scurrent->u.f4 != NULL ){
+										PDFFree(scurrent->u.f4->end_count);
+										PDFFree(scurrent->u.f4->start_count);
+										PDFFree(scurrent->u.f4->id_delta);
+										PDFFree(scurrent->u.f4->id_range_offset);
+										PDFFree(scurrent->u.f4->glyph_id_array);
+										PDFFree(scurrent->u.f4);
+									}
+								}
+								PDFFree(scurrent);
+								scurrent=snext;
+							}
+						}
+
+						if ( cmap->header != NULL ){
+							PDFFree(cmap->header);
+						}
+						PDFFree(cmap);
+					}
+				}
+				PDFFree(tcurrent);
+				tcurrent=tnext;
+			}
 			PDFFree(current);
 			current=next;
 		}

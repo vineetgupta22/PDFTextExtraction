@@ -21,6 +21,8 @@ FILES = PDFInflate.c						\
 		PDFMem.c							\
 		PDFFonts.c							\
 		PDFFonts_TT.c						\
+		PDFFonts_Table_OS2.c				\
+		PDFFonts_Table_CMAP.c				\
 		PDFTextExtraction.c
 
 
