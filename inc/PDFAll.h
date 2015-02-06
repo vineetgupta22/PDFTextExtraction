@@ -44,6 +44,10 @@
 			#include <PDFObjects.h>
 		#endif
 
+		#ifndef		_PDFFonts_
+			#include <PDFFonts.h>
+		#endif
+
 		//Including document structures
 		#ifndef		_PDFDocument_
 			#include <PDFDocument.h>

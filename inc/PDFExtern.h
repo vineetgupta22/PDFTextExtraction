@@ -110,6 +110,7 @@
 
 		//Function defined in src/PDFInflate.c
 		extern char *pdf_inflate(pdf_stream *file, int offset);
+		extern void pdf_inflate2(pdf_stream *file, int offset);
 
 
 		/*********** Starting of Memory Allocation [File = PDFMem.c]***********/

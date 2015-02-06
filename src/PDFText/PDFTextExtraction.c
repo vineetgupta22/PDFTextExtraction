@@ -52,6 +52,16 @@
 
 		PDFFree(doc->xref_index);
 		PDFFree(doc->xref_sections);
+
+		//Cleaning up font section
+		pdf_font *current, *next;
+		for(current=doc->font; current; ){
+			next=current->next;
+
+			PDFFree(current);
+			current=next;
+		}
+
 		PDFFree(doc);
 
 		printf("\n\n\n");

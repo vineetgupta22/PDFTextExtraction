@@ -229,6 +229,12 @@
 			*	@brief		:			Total Number of Pages found in PDF File
 			**/
 			int 						page_count;
+
+			/**
+			*	@var		:			font
+			*	@brief		:			Document Fond Details
+			**/
+			pdf_font					*font;
 		};
 
 		extern int errno;

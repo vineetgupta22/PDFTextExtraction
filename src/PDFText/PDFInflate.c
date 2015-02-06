@@ -22,6 +22,7 @@
 	int inflate_dynamic(void);
 	int huft_free(struct huft *t);
 	char *pdf_inflate(pdf_stream *file, int length);
+	void pdf_inflate2(pdf_stream *file, int offset);
 	int inflate_codes(struct huft *tl, struct huft *td, int bl, int bd);
 	int huft_build(unsigned *b, unsigned n, unsigned s, unsigned short *d, unsigned short *e, struct huft **t, int *m);
 	/***************************** Ending Prototypes **********************/
@@ -30,7 +31,7 @@
 	static pdf_stream *in;
 	static int insize;
 	static unsigned outcnt;
-	unsigned char slide[1UL<<17];
+	unsigned char slide[1UL<<20];
 	static unsigned inptr;
 	static unsigned long bb;                         /* bit buffer */
 	static unsigned bk;                    			/* bits in bit buffer */
@@ -344,7 +345,7 @@
 			/* then it's a literal */
 			if (e == 16){
 				slide[w++] = (unsigned char)t->v.n;
-				if (w == 0x8000){
+				if (w == 0x10000){
 					printf("flush_output(w);");
 					exit(0);
 					w = 0;
@@ -377,11 +378,11 @@
 
 				/* do the copy */
 				do {
-					n -= (e = (e = 0x8000 - ((d &= 0x8000-1) > w ? d : w)) > n ? n : e);
+					n -= (e = (e = 0x10000 - ((d &= 0x10000-1) > w ? d : w)) > n ? n : e);
 					do {
 						slide[w++] = slide[d++];
 					} while (--e);
-					if (w == 0x8000){
+					if (w == 0x10000){
 						printf("flush_output(w);\n");
 						exit(0);
 						w = 0;
@@ -618,6 +619,46 @@
 
 		char *s=(char *)slide;
 		return s;
+	}
+	
+	void pdf_inflate2(pdf_stream *file, int offset){
+		int e;                /* last block flag */
+		int r;                /* result code */
+		unsigned h;           /* maximum struct huft's malloc'ed */
+
+		in=file;
+		insize=offset;
+		inptr=0;
+
+		//Dropping version bytes
+		pdf_read_byte(file);
+		pdf_read_byte(file);
+
+		/* initialize window, bit buffer */
+		wp = 0;
+		bk = 0;
+		bb = 0;
+
+		/* decompress until the last block */
+		h = 0;
+		do {
+			hufts = 0;
+			if ((r = inflate_block(&e)) != 0){
+				printf("return r=%d\n", r);
+				exit(0);
+			}
+			if (hufts > h)
+				h = hufts;
+		} while (!e);
+
+		while (bk >= 8) {
+			bk -= 8;
+			inptr--;
+		}
+		printf("Length=%d\n", wp);
+		FILE *out=fopen("font.ttf", "wb");
+		fwrite(slide, 1, wp, out);
+		fclose(out);
 	}
 
 	C_MODE_END
