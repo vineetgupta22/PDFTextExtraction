@@ -87,6 +87,9 @@
 	}
 
 	void pdf_load_pagelabels(pdf_document *doc, pdf_obj *pagelabels){
+		if ( doc->pageslabels ){
+			return;
+		}
 		int i, len=0;
 		PDFUnused pdf_obj *objkey, *objval;
 		if ( pagelabels->kind == PDF_INDIRECT ){

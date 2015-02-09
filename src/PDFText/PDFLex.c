@@ -63,8 +63,48 @@
 					*s++ = (char)c;
 					break;
 				case '\\':
-					printf("\\\n");
-					exit(0);
+					c = pdf_read_byte(f);
+					switch (c){
+						case EOF:
+							goto end;
+						case 'n':
+							*s++ = '\n';
+							break;
+						case 'r':
+							*s++ = '\r';
+							break;
+						case 't':
+							*s++ = '\t';
+							break;
+						case 'b':
+							*s++ = '\b';
+							break;
+						case 'f':
+							*s++ = '\f';
+							break;
+						case '(':
+							*s++ = '(';
+							break;
+						case ')':
+							*s++ = ')';
+							break;
+						case '\\':
+							*s++ = '\\';
+							break;
+						case RANGE_0_7:
+							printf("case RANGE_0_7:\n");
+							exit(0);
+						case '\n':
+							break;
+						case '\r':
+							c = pdf_read_byte(f);
+							if ((c != '\n') && (c != EOF))
+								pdf_unread_byte(f);
+							break;
+						default:
+							*s++ =(char)c;
+					}
+					break;
 				default:
 					*s++ = (char)c;
 					break;

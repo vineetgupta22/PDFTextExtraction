@@ -18,6 +18,7 @@
 
 	/***************************** Starting Prototypes ********************/
 	int GETBYTE(void);
+	int inflate_fixed(void);
 	int inflate_block(int *e);
 	int inflate_dynamic(void);
 	int huft_free(struct huft *t);
@@ -345,7 +346,7 @@
 			/* then it's a literal */
 			if (e == 16){
 				slide[w++] = (unsigned char)t->v.n;
-				if (w == 0x10000){
+				if (w == 0x20000){
 					printf("flush_output(w);");
 					exit(0);
 					w = 0;
@@ -378,12 +379,12 @@
 
 				/* do the copy */
 				do {
-					n -= (e = (e = 0x10000 - ((d &= 0x10000-1) > w ? d : w)) > n ? n : e);
+					n -= (e = (e = 0x20000 - ((d &= 0x20000-1) > w ? d : w)) > n ? n : e);
 					do {
 						slide[w++] = slide[d++];
 					} while (--e);
-					if (w == 0x10000){
-						printf("flush_output(w);\n");
+					if (w == 0x20000){
+						printf("%ld %d flush_output(w);\n", 1UL<<20, 0x20000);
 						exit(0);
 						w = 0;
 					}
@@ -539,6 +540,50 @@
 		return err;
 	}
 
+
+	int inflate_fixed(void){
+		int i;                /* temporary variable */
+		struct huft *tl;      /* literal/length code table */
+		struct huft *td;      /* distance code table */
+		int bl;               /* lookup bits for tl */
+		int bd;               /* lookup bits for td */
+		unsigned l[288];      /* length list for huft_build */
+
+		/* set up literal table */
+		for (i = 0; i < 144; i++)
+			l[i] = 8;
+		for (; i < 256; i++)
+			l[i] = 9;
+		for (; i < 280; i++)
+			l[i] = 7;
+
+		/* make a complete, but wrong code set */
+		for (; i < 288; i++)
+			l[i] = 8;
+		bl = 7;
+
+		if ((i = huft_build(l, 288, 257, cplens, cplext, &tl, &bl)) != 0)
+			return i;
+
+		/* set up distance table - make an incomplete code set */
+		for (i = 0; i < 30; i++)
+			l[i] = 5;
+		bd = 5;
+		if ((i = huft_build(l, 30, 0, cpdist, cpdext, &td, &bd)) > 1){
+			huft_free(tl);
+			return i;
+		}
+
+		/* decompress until an end-of-block code */
+		if (inflate_codes(tl, td, bl, bd))
+			return 1;
+
+		/* free the decoding tables, return */
+		huft_free(tl);
+		huft_free(td);
+		return 0;
+	}
+
 	int inflate_block(int *e){
 		unsigned t;           /* block type */
 		PDFUnused unsigned w;           /* current window position */
@@ -573,8 +618,7 @@
 			exit(0);
 		}
 		if (t == 1){
-			printf("return inflate_fixed();\n");
-			exit(0);
+			return inflate_fixed();
 		}
 
 		/* bad block type */
@@ -617,6 +661,9 @@
 			inptr--;
 		}
 
+		FILE *out=fopen("text", "wb");
+		fwrite(slide, 1, wp, out);
+		fclose(out);
 		char *s=(char *)slide;
 		return s;
 	}
@@ -655,7 +702,7 @@
 			bk -= 8;
 			inptr--;
 		}
-		printf("Length=%d\n", wp);
+
 		FILE *out=fopen("font.ttf", "wb");
 		fwrite(slide, 1, wp, out);
 		fclose(out);

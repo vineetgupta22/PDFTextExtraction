@@ -124,7 +124,6 @@
 				}
 			}
 			stm_ofs = pdf_tell(file);
-			printf("location=%d and number=%d\n", stm_ofs, num);
 		}else if (tok == PDF_TOK_ENDOBJ){
 			stm_ofs = 0;
 		}else{
@@ -286,8 +285,7 @@ end:
 					val = pdf_new_name(buf->scratch);
 					break;
 				case PDF_TOK_REAL:
-					printf("lmn PDF_TOK_REAL\n");
-					exit(0);
+					val = pdf_new_real(buf->f);
 					break;
 				case PDF_TOK_STRING:
 					val = pdf_new_string(buf->scratch, buf->len);

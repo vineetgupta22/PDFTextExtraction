@@ -22,8 +22,14 @@
 		//Now having the only font object
 		obj = pdf_dict_gets(doc, obj, "Font");
 
-		//Resolving Font object
-		obj = pdf_resolve_indirect(doc, obj);
+		if ( obj && obj->kind == PDF_INDIRECT ){
+			//Resolving Font object
+			obj = pdf_resolve_indirect(doc, obj);
+		}else{
+			if ( !obj ){
+				return;
+			}
+		}
 
 		//Total Number of fonts used in current document page
 		n = obj->u.d.len;
@@ -42,6 +48,8 @@
 
 				if (subtype && !strcmp(subtype, "TrueType")){
 					pdf_load_font_tt(doc, font);
+				}else if (subtype && !strcmp(subtype, "Type1")){
+					return;
 				}else{
 					printf("Not a true type font - %s\n", subtype);
 					exit(0);
