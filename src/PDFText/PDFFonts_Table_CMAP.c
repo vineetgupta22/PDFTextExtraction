@@ -98,7 +98,6 @@
 			memset(current, 0, sizeof(pdf_ttc_cmap_subtable));
 
 			current->format=pdf_font_read_ushort(file);
-			printf("CMAP Format Type = %2d\n", current->format);
 			if ( current->format == CMAP_FORMAT0 ){
 				current->u.f0=pdf_ttf_read_format0(file);
 			} else if ( current->format == CMAP_FORMAT4 ){
@@ -148,9 +147,6 @@
 
 		head->version=pdf_font_read_ushort(file);
 		head->numberSubtables=pdf_font_read_ushort(file);
-
-		printf("CMAP Header - version=%u\n", head->version);
-		printf("CMAP Header - numberSubtables=%u\n", head->numberSubtables);
 
 		return head;
 	}

@@ -68,9 +68,6 @@
 			newtable->offset=pdf_font_read_ulong(file);
 			newtable->length=pdf_font_read_ulong(file);
 			
-			printf("TableName=%s, tableCheckSum=%012u, offset=%05u length=%05u\n",
-				newtable->name, newtable->CheckSum, newtable->offset, newtable->length);
-				
 			if ( strcmp(newtable->name, "OS/2") == 0 ){
 				newtable->u.os2=pdf_font_table_os2(file, newtable->offset, newtable->length);
 			}else if ( strcmp(newtable->name, "cmap") == 0 ){
@@ -135,7 +132,6 @@
 						//setting the offset to xref offset provided
 						pdf_seek(doc->file, entry->offsets, PDFSEEK_SET);
 
-						printf("location = %d and len=%d\n", entry->offsets, lenp);
 						pdf_inflate2(doc->file, lenp);
 
 						pdf_font *fonts;
