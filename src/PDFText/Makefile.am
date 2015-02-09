@@ -20,7 +20,9 @@ FILES = PDFInflate.c						\
 		PDFLex.c							\
 		PDFMem.c							\
 		PDFFonts.c							\
+		PDFStream.c							\
 		PDFFonts_TT.c						\
+		PDFPagesLabels.c					\
 		PDFFonts_Table_OS2.c				\
 		PDFFonts_Table_CMAP.c				\
 		PDFTextExtraction.c

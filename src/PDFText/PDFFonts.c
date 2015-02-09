@@ -43,7 +43,7 @@
 				if (subtype && !strcmp(subtype, "TrueType")){
 					pdf_load_font_tt(doc, font);
 				}else{
-					printf("Not a true type font\n");
+					printf("Not a true type font - %s\n", subtype);
 					exit(0);
 				}
 			}

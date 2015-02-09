@@ -18,6 +18,7 @@
 	void pdf_load_page(pdf_document *doc, int number){
 		pdf_obj *hit=NULL;
 		pdf_obj *kids = NULL;
+		pdf_obj *pageobj, *obj=NULL;
 		int len, i;
 		int stack_max = 16;
 		int stack_len = 0;
@@ -35,6 +36,12 @@
 		if (!node){
 			printf("cannot find page tree\n");
 			exit(0);
+		}
+
+		obj=pdf_dict_gets(doc, root, "PageLabels");
+		if ( obj ){
+			pdf_load_pagelabels(doc, obj);
+			obj=NULL;
 		}
 
 		do{
@@ -106,9 +113,6 @@
 			exit(0);
 		}
 
-		//hit is having the page object
-		pdf_obj *pageobj, *obj;
-
 		//Resolving pageobj
 		pageobj = pdf_resolve_indirect(doc, hit);
 
@@ -120,6 +124,43 @@
 			printf("not have object - %c\n", hit->kind);
 		}
 		
+		obj = pdf_dict_gets(doc, pageobj, "Contents");
+		if ( obj ){
+			if ( obj->kind == PDF_INDIRECT ){
+				pdf_xref_entry *entry;
+				entry = pdf_cache_object(doc, obj->u.r.num, obj->u.r.gen);
+
+				if ( entry->offsets ){
+					pdf_obj *filters = pdf_dict_gets(doc, obj, "Filter");
+
+					if ( filters->kind == PDF_NAME ){
+						if ( strcmp(pdf_to_name(filters), "FlateDecode" ) == 0 ){
+							int lenp = pdf_to_int(doc, pdf_dict_gets(doc, obj, "Length"));
+
+							//setting the offset to xref offset provided
+							pdf_seek(doc->file, entry->offsets, PDFSEEK_SET);
+
+							//Deflating document
+							pdf_inflate(doc->file, lenp);
+
+							pdf_process_stream(doc, pdf_dict_gets(doc, pageobj, "Resources"), "text");
+						}
+					}else{
+						printf("Filters Kind=%c and %d %s\n", filters->kind, __LINE__, __FILE__);
+						exit(0);
+					}
+				}else{
+					printf("Doesn't have the offsets %d %s\n", __LINE__, __FILE__);
+					exit(0);
+				}
+			}else{
+				printf("Contents object kind=%c\n", obj->kind);
+				exit(0);
+			}
+		}else{
+			printf("not have Contents Object\n");
+			exit(0);
+		}
 	}
 
 	C_MODE_END

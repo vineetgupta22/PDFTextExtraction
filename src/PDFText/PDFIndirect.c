@@ -11,6 +11,7 @@
 	/***************************** Starting Prototypes ********************/
 	pdf_obj *pdf_array_get(pdf_obj *obj, int i);
 	pdf_obj *pdf_dict_get_val(pdf_obj *obj, int i);
+	pdf_obj *pdf_dict_get_key(pdf_obj *obj, int i);
 	void pdf_set_obj_parent(pdf_obj *obj, int num);
 	pdf_xref_entry *pdf_get_xref_entry(pdf_document *doc, int i);
 	pdf_obj *pdf_resolve_indirect(pdf_document *doc, pdf_obj *ref);
@@ -57,6 +58,23 @@
 			}
 		}
 		return &sub->table[i - sub->start];
+	}
+
+	pdf_obj *pdf_dict_get_key(pdf_obj *obj, int i){
+		do {
+			if (obj && obj->kind == PDF_INDIRECT){
+				printf("obj = pdf_resolve_indirect(obj);\n");
+				exit(0);
+			}
+		} while (0);
+
+		if (!obj || obj->kind != PDF_DICT)
+			return NULL;
+
+		if (i < 0 || i >= obj->u.d.len)
+			return NULL;
+
+		return obj->u.d.items[i].k;
 	}
 
 	pdf_obj *pdf_dict_get_val(pdf_obj *obj, int i){

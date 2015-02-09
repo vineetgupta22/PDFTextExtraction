@@ -49,6 +49,11 @@
 		#endif
 
 		//Including document structures
+		#ifndef		_PDFContentStream_
+			#include <PDFContentStream.h>
+		#endif
+
+		//Including document structures
 		#ifndef		_PDFDocument_
 			#include <PDFDocument.h>
 		#endif

@@ -98,9 +98,13 @@
 		extern pdf_xref_entry *pdf_cache_object(pdf_document *doc, int num, int gen);
 		extern pdf_obj *pdf_array_get(pdf_obj *obj, int i);
 		extern pdf_obj *pdf_dict_get_val(pdf_obj *obj, int i);
+		extern pdf_obj *pdf_dict_get_key(pdf_obj *obj, int i);
 
 		//Function defined in src/PDFPages.c
 		extern void pdf_load_page(pdf_document *doc, int number);
+
+		//Function defined in src/PDFPagesLabels.c
+		extern void pdf_load_pagelabels(pdf_document *doc, pdf_obj *pagelabels);
 
 		//Function defined in src/PDFFonts.c
 		extern void pdf_font_load(pdf_document *doc, pdf_obj *obj);
@@ -120,6 +124,9 @@
 		//Function defined in src/PDFInflate.c
 		extern char *pdf_inflate(pdf_stream *file, int offset);
 		extern void pdf_inflate2(pdf_stream *file, int offset);
+
+		//Function defined in src/PDFStream.c
+		extern void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name);
 
 		/*********** Starting of Memory Allocation [File = PDFMem.c]***********/
 		//linking to Memory Allocation

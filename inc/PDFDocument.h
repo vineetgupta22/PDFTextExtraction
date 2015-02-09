@@ -34,8 +34,15 @@
 		typedef 	struct PDFTextExtraction_Documents_Xref_Entry			pdf_xref_entry;
 		typedef 	struct PDFTextExtraction_Documents_Xref_SubSections		pdf_xref_subsec;
 		typedef 	struct PDFTextExtraction_Documents_Offsets_list			offsets_list;
+		typedef 	struct PDFTextExtraction_Documents_PageLabels			pdf_pageslables;
 
 
+		struct PDFTextExtraction_Documents_PageLabels{
+			char				*kind;
+			int					startfrom;
+			pdf_pageslables		*prev;
+			pdf_pageslables		*next;
+		};
 
 		/**
 		*	@struct		:		PDFTextExtraction_Documents_Xref_SubSections
@@ -235,6 +242,12 @@
 			*	@brief		:			Document Fond Details
 			**/
 			pdf_font					*font;
+
+			/**
+			*	@var		:			pageslabels
+			*	@brief		:			Document Page Labels Details
+			**/
+			pdf_pageslables 			*pageslabels;
 		};
 
 		extern int errno;
