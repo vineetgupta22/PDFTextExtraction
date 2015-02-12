@@ -28,7 +28,6 @@
 		#pragma		pack(push, 4)
 
 
-		typedef		struct PDFTextExtraction_Document_Structure				pdf_document;
 		typedef		struct PDFTextExtraction_Document_Buffer				pdf_buffer;
 		typedef 	struct PDFTextExtraction_Documents_Xref_Sections 		pdf_xref;
 		typedef 	struct PDFTextExtraction_Documents_Xref_Entry			pdf_xref_entry;
@@ -248,6 +247,12 @@
 			*	@brief		:			Document Page Labels Details
 			**/
 			pdf_pageslables 			*pageslabels;
+
+			/**
+			*	@var		:			contents
+			*	@brief		:			Document Page content Details
+			**/
+			pdf_contents				*contents;
 		};
 
 		extern int errno;

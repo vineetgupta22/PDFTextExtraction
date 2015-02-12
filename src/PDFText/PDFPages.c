@@ -116,14 +116,6 @@
 		//Resolving pageobj
 		pageobj = pdf_resolve_indirect(doc, hit);
 
-		obj = pdf_dict_gets(doc, pageobj, "Resources");
-		if ( obj ){
-			//sending to do things with fonts
-			pdf_font_load(doc, obj);
-		}else{
-			printf("not have object - %c\n", hit->kind);
-		}
-		
 		obj = pdf_dict_gets(doc, pageobj, "Contents");
 		if ( obj ){
 			if ( obj->kind == PDF_INDIRECT ){
@@ -143,7 +135,7 @@
 							//Deflating document
 							pdf_inflate(doc->file, lenp);
 
-							pdf_process_stream(doc, pdf_dict_gets(doc, pageobj, "Resources"), "text");
+							pdf_process_stream(doc, pdf_dict_gets(doc, pageobj, "Resources"), "text", number);
 						}
 					}else{
 						printf("Filters Kind=%c and %d %s\n", filters->kind, __LINE__, __FILE__);

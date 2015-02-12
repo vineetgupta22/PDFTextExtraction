@@ -116,6 +116,21 @@
 			current=next;
 		}
 
+		pdf_pageslables *lhead, *lnext;
+		for(lhead=doc->pageslabels; lhead; ){
+			lnext=lhead->next;
+			PDFFree(lhead->kind);
+			PDFFree(lhead);
+			lhead=lnext;
+		}
+
+		pdf_contents *head, *ccurr;
+		for(head=doc->contents; head; ){
+			ccurr=head->next;
+			PDFFree(head);
+			head=ccurr;
+		}
+
 		PDFFree(doc);
 
 		printf("\n\n\n");

@@ -126,7 +126,7 @@
 		extern void pdf_inflate2(pdf_stream *file, int offset);
 
 		//Function defined in src/PDFStream.c
-		extern void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name);
+		extern void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
 
 		/*********** Starting of Memory Allocation [File = PDFMem.c]***********/
 		//linking to Memory Allocation

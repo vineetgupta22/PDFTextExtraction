@@ -17,10 +17,40 @@
 
 		struct PDFTextExtraction_Documents_Content_Stream{
 			/**
+			*	@var		:			prev
+			*	@brief		:			Pointer to Previous content stream
+			**/
+			pdf_contents 				*prev;
+
+			/**
 			*	@var		:			file
 			*	@brief		:			Pointer to PDF File Stream
 			**/
 			pdf_stream 					*file;
+
+			/**
+			*	@var		:			resources
+			*	@brief		:			Holding resources for Current Page
+			**/
+			pdf_obj						*resources;
+
+			/**
+			*	@var		:			doc
+			*	@brief		:			Holding Document Details
+			**/
+			pdf_document				*doc;
+
+			/**
+			*	@var		:			PageNo
+			*	@brief		:			Page Number of Current Processing Document
+			**/
+			int							PageNo;
+
+			/**
+			*	@var		:			next
+			*	@brief		:			Pointer to Next content stream
+			**/
+			pdf_contents 				*next;
 		};
 
 		//Endling of alignment

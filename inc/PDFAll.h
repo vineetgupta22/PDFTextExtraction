@@ -28,6 +28,7 @@
 		#pragma		pack(push, 4)
 
 		extern 		unsigned long 				MallocSize;
+		typedef		struct PDFTextExtraction_Document_Structure				pdf_document;
 
 		//Including Stream structures
 		#ifndef		_PDFStream_
