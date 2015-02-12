@@ -29,10 +29,36 @@
 	float pdf_atof(const char *s);
 	char *pdf_strsep(char **str, const char *delim);
 	double pdf_clampd(double d, double min, double max);
+	int pdf_strlcpy(char *dst, const char *src, int siz);
 	/***************************** Ending Prototypes **********************/
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	int pdf_strlcpy(char *dst, const char *src, int siz){
+		register char *d = dst;
+		register const char *s = src;
+		register int n = siz;
+
+		/* Copy as many bytes as will fit */
+		if (n != 0 && --n != 0) {
+			do {
+				if ((*d++ = *s++) == 0)
+					break;
+			} while (--n != 0);
+		}
+
+		/* Not enough room in dst, add NUL and traverse rest of src */
+		if (n == 0) {
+			if (siz != 0)
+				*d = '\0';		/* NUL-terminate dst */
+			while (*s++)
+				;
+		}
+
+		/* count does not include NUL */
+		return(s - src - 1);
+	}
 
 	double pdf_clampd(double d, double min, double max){
 		return (d > min ? (d < max ? d : max) : min);

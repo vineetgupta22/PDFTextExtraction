@@ -127,6 +127,9 @@
 		pdf_contents *head, *ccurr;
 		for(head=doc->contents; head; ){
 			ccurr=head->next;
+			if(head->stack){
+				PDFFree(head->stack);
+			}
 			PDFFree(head);
 			head=ccurr;
 		}

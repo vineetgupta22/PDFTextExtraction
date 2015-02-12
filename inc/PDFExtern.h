@@ -60,6 +60,7 @@
 		extern int pdf_atoi(const char *s);
 		extern float pdf_atof(const char *s);
 		extern char *pdf_strsep(char **str, const char *delim);
+		extern int pdf_strlcpy(char *dst, const char *src, int siz);
 
 
 		//Functions defined under src/PDFXref.c
