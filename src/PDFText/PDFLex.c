@@ -40,6 +40,7 @@
 	int lex_string(pdf_stream *f, pdf_lexbuf *lb){
 		char *s = lb->scratch;
 		char *e = s + lb->size;
+		int oct;
 		int c ;
 		int bal = 1;
 
@@ -92,8 +93,21 @@
 							*s++ = '\\';
 							break;
 						case RANGE_0_7:
-							printf("case RANGE_0_7:\n");
-							exit(0);
+							oct = c - '0';
+							c = pdf_read_byte(f);
+							if (c >= '0' && c <= '7'){
+								oct = oct * 8 + (c - '0');
+								c = pdf_read_byte(f);
+								if (c >= '0' && c <= '7'){
+									oct = oct * 8 + (c - '0');
+								}else if (c != EOF){
+									pdf_unread_byte(f);
+								}
+							}else if (c != EOF){
+								pdf_unread_byte(f);
+							}
+							*s++ =(char)oct;
+							break;
 						case '\n':
 							break;
 						case '\r':

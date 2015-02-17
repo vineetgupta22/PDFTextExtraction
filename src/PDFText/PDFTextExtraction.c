@@ -130,6 +130,14 @@
 			if(head->stack){
 				PDFFree(head->stack);
 			}
+			if ( head->details ){
+				pdf_content_line *cline, *cnext;
+				for(cline=head->details; cline; ){
+					cnext=cline->next;
+					PDFFree(cline);
+					cline=cnext;
+				}
+			}
 			PDFFree(head);
 			head=ccurr;
 		}
@@ -241,6 +249,7 @@
 		int i;
 		for(i=0; i<doc->page_count; i++){
 			pdf_load_page(doc, i);
+			if ( i==4) break;
 		}
 	}
 

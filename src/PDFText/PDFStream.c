@@ -8,18 +8,74 @@
 	C_MODE_START
 
 	/***************************** Starting Prototypes ********************/
+	void pdf_clear_stack(pdf_contents *contents);
 	void pdf_create_stack(pdf_contents *contents);
+	void pdf_create_newLine(pdf_contents *contents);
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf);
+	int pdf_run_keyword(pdf_contents *contents PDFUnused, char *buf);
 	void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
 	/***************************** Ending Prototypes **********************/
 
 
 	/***************************** Global Variables ********************/
+	#define 	A(a) 		(a)
+	#define 	B(a,b) 		(a | b << 8)
+	#define 	C(a,b,c) 	(a | b << 8 | c << 16)
 	#define 	nelem(x) 	(int)(sizeof(x)/sizeof((x)[0]))
 	/***************************** Global Variables ********************/
 
+	void pdf_create_newLine(pdf_contents *contents){
+		pdf_content_line	*line;
+
+		line=(pdf_content_line*)PDFMalloc(sizeof(pdf_content_line));
+		memset(line, 0, sizeof(pdf_content_line));
+
+		line->LineNumber=contents->TotalLines++;
+
+		if ( contents->details ){
+			if ( contents->details->next ){
+				line->prev=contents->details->prev;
+				contents->details->prev->next=line;
+				contents->details->prev=line;
+			}else{
+				line->prev=contents->details;
+				contents->details->prev=line;
+				contents->details->next=line;
+			}
+		}else{
+			contents->details=line;
+		}
+	}
+
+	int pdf_run_keyword(pdf_contents *contents PDFUnused, char *buf){
+		int key;
+
+		key = buf[0];
+		if (buf[1])	{
+			key |= buf[1] << 8;
+			if (buf[2]){
+				key |= buf[2] << 16;
+				if (buf[3]){
+					key = 0;
+				}
+			}
+		}
+
+		switch (key){
+			default:
+				printf("Current matching with=%s\n", buf);
+				exit(0);
+		}
+		return 0;
+	}
+
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf){
 		pdf_token tok = PDF_TOK_ERROR;
+
+		//Creating A newLine with Resources
+		pdf_create_newLine(contents);
+
+		pdf_read_fonts(contents);
 
 		//Creating stack for contents
 		pdf_create_stack(contents);
@@ -57,6 +113,12 @@
 						pdf_strlcpy(contents->stack->name, buf->scratch, sizeof(contents->stack->name));
 					}
 					break;
+				case PDF_TOK_KEYWORD:
+					if (pdf_run_keyword(contents, buf->scratch)){
+						tok = PDF_TOK_EOF;
+					}
+					pdf_clear_stack(contents);
+					break;
 				default:
 					if ( tok == PDF_TOK_KEYWORD){
 						printf("PDF_TOK_KEYWORD default %s\n", buf->scratch);
@@ -80,6 +142,20 @@
 		}else{
 			contents->stack=stack;
 		}
+	}
+
+	void pdf_clear_stack(pdf_contents *contents){
+		int i;
+
+		//Drop the contents object
+		pdf_drop_obj(contents->stack->obj);
+		contents->stack->obj = NULL;
+		contents->stack->name[0] = 0;
+		contents->stack->string_len = 0;
+		for (i = 0; i < contents->stack->top; i++){
+			contents->stack->stack[i] = 0;
+		}
+		contents->stack->top = 0;
 	}
 
 	void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number){

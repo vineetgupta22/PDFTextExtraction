@@ -129,6 +129,9 @@
 		//Function defined in src/PDFStream.c
 		extern void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
 
+		//Function defined in src/PDFStreamFont.c
+		extern void pdf_read_fonts(pdf_contents *contents);
+
 		/*********** Starting of Memory Allocation [File = PDFMem.c]***********/
 		//linking to Memory Allocation
 		extern PDFExport void * PDFAPI PDFMemAlloc(unsigned int size, const char *file, unsigned int line);
