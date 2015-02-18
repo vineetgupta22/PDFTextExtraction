@@ -9,9 +9,12 @@
 
 	/***************************** Starting Prototypes ********************/
 	void pdf_clear_stack(pdf_contents *contents);
+	float pdf_offsety_max(pdf_contents *contents);
 	void pdf_create_stack(pdf_contents *contents);
 	void pdf_set_line_font(pdf_contents *contents);
 	void pdf_create_newLine(pdf_contents *contents);
+	void pdf_set_text_matrix(pdf_contents *contents);
+	float pdf_set_maxheight(pdf_contents *contents, char *name);
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf);
 	int pdf_run_keyword(pdf_contents *contents PDFUnused, char *buf);
 	pdf_content_line *pdf_get_last_content_line(pdf_contents *contents);
@@ -26,6 +29,60 @@
 	#define 	nelem(x) 	(int)(sizeof(x)/sizeof((x)[0]))
 	/***************************** Global Variables ********************/
 
+	float pdf_offsety_max(pdf_contents *contents){
+		float ret=0;
+		//Before proceeding Further lets get the last content line
+		pdf_content_line *last=pdf_get_last_content_line(contents);
+
+		if ( last ){
+			ret=(pdf_set_maxheight(contents, last->font->fontName)*last->scaler_x);
+			ret+=last->offset_y;
+			ret+=last->Text_Leading;
+		}
+		return ret;
+	}
+
+	void pdf_set_text_matrix(pdf_contents *contents){
+		//Before proceeding Further lets get the last content line
+		pdf_content_line *last=pdf_get_last_content_line(contents);
+
+		if ( last->len ){
+			printf("There is already Text in Line create part or line decide\n");
+			exit(0);
+		}else{
+			if ( last->prev ){
+				printf("We have already previous need to copy things decide");
+				exit(0);
+			}else{
+				//This is the New Block Text, don't needed to do Much
+				//No Text No Previous 1st run of Text Matrix
+				last->offset_x=contents->stack->stack[4];
+				last->offset_y=contents->stack->stack[5];
+
+				last->scaler_x=contents->stack->stack[0];
+				last->scaler_y=contents->stack->stack[3];
+
+				last->tan_a=contents->stack->stack[1];
+				last->tan_b=contents->stack->stack[2];
+			}
+		}
+
+		last->font->size=(int)last->scaler_x;
+		printf("\nTM - FontSize=%d; FontBold=%d; fontitalics=%d; FontType=%s; Font Name=%s\n",
+			last->font->size, last->font->is_bold, last->font->is_italic,
+			last->font->type, last->font->fontName);
+
+		printf("TM - OffsetX=%05f; OffsetY=%05f; ScalerX=%05f, ScalerY=%05f; TanA=%05f; TanB=%05f\n",
+				last->offset_x, last->offset_y,
+				last->scaler_x, last->scaler_y, last->tan_a, last->tan_b);
+
+		//Setting the Y Axis height Maximum
+		last->Height_Offset_Y=pdf_offsety_max(contents);
+
+		printf("Maximum Height of Text %f\n", last->maxheight);
+		printf("Height_Offset_Y=%f\n\n", last->Height_Offset_Y);
+	}
+
 	pdf_content_line *pdf_get_last_content_line(pdf_contents *contents){
 		pdf_content_line *ret=NULL;
 
@@ -37,6 +94,27 @@
 		}
 
 		return ret;
+	}
+
+	float pdf_set_maxheight(pdf_contents *contents, char *name){
+		float max=0;
+
+		pdf_content_fonts *current, *next;
+		for(current=contents->allfonts; current; ){
+			next=current->next;
+			if ( strcmp(current->name, name) == 0 ){
+				//Assent is the maximum height
+				max=(float)current->Ascent;
+
+				if ( current->Descent < 0 ){
+					max=max-(float)current->Descent;
+				}
+				break;
+			}
+			current=next;
+		}
+
+		return max/1000;
 	}
 
 	void pdf_set_line_font(pdf_contents *contents){
@@ -62,6 +140,10 @@
 					pdf_strlcpy(last->font->type, current->type, sizeof(last->font->type));
 					last->font->is_italic=current->is_italic;
 					last->font->is_bold=current->is_bold;
+
+					if ( last->font ){
+						last->maxheight=(pdf_set_maxheight(contents, last->font->fontName));
+					}
 					break;
 				}
 				current=next;
@@ -107,9 +189,18 @@
 		}
 
 		switch (key){
+			case B('c', 's'): break;			//We don't need setcolorspace
+			case B('T', 'c'): break;			//We don't need character spacing
 			case B('T', 'f'):
 				pdf_set_line_font(contents);
 				break;
+			case B('T', 'j'): break;			//We don't need Show text
+			case B('T', 'm'):
+				pdf_set_text_matrix(contents);
+				break;
+			case B('T', 'w'): break;			//We don't need word spacing
+			case B('E', 'T'): return 1;			//We don't need Show text
+			case C('s', 'c', 'n'): break;		//We don't need setcolor
 			default:
 				printf("Current matching with=%s\n", buf);
 				exit(0);

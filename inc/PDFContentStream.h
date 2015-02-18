@@ -83,6 +83,60 @@
 			char						text[256];
 
 			/**
+			*	@var		:			offset_x
+			*	@brief		:			Offset of x axis where line starts
+			**/
+			float						offset_x;
+
+			/**
+			*	@var		:			offset_y
+			*	@brief		:			Offset of y axis where line starts
+			**/
+			float						offset_y;
+
+			/**
+			*	@var		:			scaler_y
+			*	@brief		:			Scaling y units
+			**/
+			float						scaler_x;
+
+			/**
+			*	@var		:			scaler_y
+			*	@brief		:			Scaling y units
+			**/
+			float						scaler_y;
+
+			/**
+			*	@var		:			tan_a
+			*	@brief		:			Skew tan a
+			**/
+			float						tan_a;
+
+			/**
+			*	@var		:			tan_b
+			*	@brief		:			Skew tan b
+			**/
+			float						tan_b;
+
+			/**
+			*	@var		:			maxheight
+			*	@brief		:			Maximum Height of Line text
+			**/
+			float						maxheight;
+
+			/**
+			*	@var		:			maxheight
+			*	@brief		:			Maximum Height of Line text
+			**/
+			float						Height_Offset_Y;
+
+			/**
+			*	@var		:			maxheight
+			*	@brief		:			Maximum Height of Line text
+			**/
+			float						Text_Leading;
+
+			/**
 			*	@var					font
 			*	@brief					Font Details of Line used by PDF File
 			**/
