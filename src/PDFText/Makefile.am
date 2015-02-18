@@ -23,6 +23,9 @@ FILES = PDFInflate.c						\
 		PDFStream.c							\
 		PDFFonts_TT.c						\
 		PDFStreamFont.c						\
+		PDFStreamParser.c					\
+		PDFStreamLineFont.c					\
+		PDFStreamUtility.c					\
 		PDFPagesLabels.c					\
 		PDFFonts_Table_OS2.c				\
 		PDFFonts_Table_CMAP.c				\

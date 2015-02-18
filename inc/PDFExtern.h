@@ -129,8 +129,22 @@
 		//Function defined in src/PDFStream.c
 		extern void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
 
+		//Function defined in src/PDFStreamParser.c
+		extern int pdf_run_keyword(pdf_contents *contents, char *buf);
+
+		//Function defined in src/PDFStreamLineFont.c
+		extern void pdf_set_line_font(pdf_contents *contents);
+
 		//Function defined in src/PDFStreamFont.c
 		extern void pdf_read_fonts(pdf_contents *contents);
+		extern float pdf_set_maxheight(pdf_contents *contents, char *name);
+
+		//Function defined in PDFStreamUtility.c
+		extern void pdf_clear_stack(pdf_contents *contents);
+		void pdf_create_new_linepart(pdf_contents *contents);
+		extern void pdf_create_stack(pdf_contents *contents);
+		extern void pdf_create_newLine(pdf_contents *contents);
+		pdf_content_line *pdf_get_last_content_line(pdf_contents *contents);
 
 		/*********** Starting of Memory Allocation [File = PDFMem.c]***********/
 		//linking to Memory Allocation

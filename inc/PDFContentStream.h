@@ -13,6 +13,11 @@
 		//doing alignment of 4 bytes as required by some systems
 		#pragma		pack(push, 4)
 
+		#define 	nelem(x) 	(int)(sizeof(x)/sizeof((x)[0]))
+		#define 	A(a) 		(a)
+		#define 	B(a,b) 		(a | b << 8)
+		#define 	C(a,b,c) 	(a | b << 8 | c << 16)
+
 		typedef 	struct PDFTextExtraction_Documents_Content_Stream					pdf_contents;
 		typedef 	struct PDFTextExtraction_Documents_Content_Stream_Stack				pdf_contents_stack;
 		typedef		struct PDFTextExtraction_Documents_Content_Stream_Lines				pdf_content_line;
@@ -135,6 +140,12 @@
 			*	@brief		:			Maximum Height of Line text
 			**/
 			float						Text_Leading;
+
+			/**
+			*	@var					LeftStart
+			*	@brief					Sometimes in TD/Td the text is start from Left
+			**/
+			float						LeftStart;
 
 			/**
 			*	@var					font
