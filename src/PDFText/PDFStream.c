@@ -14,9 +14,12 @@
 	void pdf_set_line_font(pdf_contents *contents);
 	void pdf_create_newLine(pdf_contents *contents);
 	void pdf_set_text_matrix(pdf_contents *contents);
+	void pdf_array_push_strings(pdf_contents *contents);
+	void pdf_create_new_linepart(pdf_contents *contents);
+	int pdf_run_keyword(pdf_contents *contents, char *buf);
 	float pdf_set_maxheight(pdf_contents *contents, char *name);
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf);
-	int pdf_run_keyword(pdf_contents *contents PDFUnused, char *buf);
+	void pdf_string_push(pdf_contents *contents, char *buf, int len);
 	pdf_content_line *pdf_get_last_content_line(pdf_contents *contents);
 	void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
 	/***************************** Ending Prototypes **********************/
@@ -28,6 +31,131 @@
 	#define 	C(a,b,c) 	(a | b << 8 | c << 16)
 	#define 	nelem(x) 	(int)(sizeof(x)/sizeof((x)[0]))
 	/***************************** Global Variables ********************/
+
+	void pdf_string_push(pdf_contents *contents, char *buf, int len){
+		int i;
+		//Get the last line resources before creating new block
+		pdf_content_line	*last;
+		last=pdf_get_last_content_line(contents);
+
+		for(i=0; i<len; i++){
+			if ( last->len < 512 ){
+				last->text[last->len++]=(char)buf[i];
+			}else{
+				printf("No Space Available\n");
+				exit(0);
+			}
+		}
+
+		printf("LineNumber=%03d; PartNumber=%03d; TextLength=%03d;\n%s\n\n",
+			last->LineNumber, last->PartNumber, last->len, last->text);
+	}
+
+	void pdf_create_new_linepart(pdf_contents *contents){
+		//Get the last line resources before creating new block
+		pdf_content_line	*last;
+		last=pdf_get_last_content_line(contents);
+
+		pdf_content_line	*line;
+
+		line=(pdf_content_line*)PDFMalloc(sizeof(pdf_content_line));
+		memset(line, 0, sizeof(pdf_content_line));
+
+		//Same line number
+		line->LineNumber=last->LineNumber;
+
+		//Increase the Part Number of Text Line
+		line->PartNumber=last->PartNumber+1;
+
+		line->offset_x=last->offset_x;
+		line->offset_y=last->offset_y;
+
+		line->scaler_x=last->scaler_x;
+		last->scaler_y=last->scaler_y;
+
+		line->tan_a=last->tan_a;
+		last->tan_b=last->tan_b;
+
+		line->maxheight=last->maxheight;
+
+		line->font=(pdf_content_line_font*)PDFMalloc(sizeof(pdf_content_line_font));
+		memset(line->font, 0, sizeof(pdf_content_line_font));
+
+		//Copying the all the font attributes
+		memcpy(line->font, last->font, sizeof(pdf_content_line_font));
+
+		printf("NewPart LineNumber=%03d; PartNumber=%03d; TextLength=%03d; Previous PartNumber=%d\n",
+			line->LineNumber, line->PartNumber, line->len, last->PartNumber);
+
+		if ( contents->details ){
+			if ( contents->details->next ){
+				line->prev=contents->details->prev;
+				contents->details->prev->next=line;
+				contents->details->prev=line;
+			}else{
+				line->prev=contents->details;
+				contents->details->prev=line;
+				contents->details->next=line;
+			}
+		}else{
+			contents->details=line;
+		}
+	}
+
+	void pdf_array_push_strings(pdf_contents *contents){
+		int c;
+
+		//Before proceeding Further lets get the last content line
+		pdf_content_line *last=pdf_get_last_content_line(contents);
+
+		//We are not concern that the last is having text or not
+		c=pdf_peek_byte(contents->file);
+		if ( c == '(' ){
+			do{
+				//Time to read the current byte from file
+				c=pdf_read_byte(contents->file);
+				if ( c == '(' ){
+					//String has started within array
+					do{
+						//Read byte by byte text of String
+						c=pdf_read_byte(contents->file);
+
+						// if symbol is font that means next char is special
+						if ( c == '\\' ){
+							if ( last->len < 512 ){
+								last->text[last->len++]=(char)c;
+
+								//Saving next Character may cause ending of array
+								c=pdf_read_byte(contents->file);
+								last->text[last->len++]=(char)c;
+
+								//Reading next byte to continue process
+								c=pdf_read_byte(contents->file);
+							}else{
+								printf("No Space Available\n");
+								exit(0);
+							}
+						}
+
+						//Don't copy byte if it is ending of string
+						if ( c != ')' ){
+							if ( last->len < 512 ){
+								last->text[last->len++]=(char)c;
+							}else{
+								printf("No Space Available\n");
+								exit(0);
+							}
+						}
+					}while ( c != ')' );
+				}
+			}while ( c != ']' );
+		}else{
+			printf("It is not an Text Array\n");
+			exit(0);
+		}
+		printf("LineNumber=%03d; PartNumber=%03d; TextLength=%03d;\n====================================\n%s\n====================================\n",
+			last->LineNumber, last->PartNumber, last->len, last->text);
+	}
 
 	float pdf_offsety_max(pdf_contents *contents){
 		float ret=0;
@@ -51,8 +179,32 @@
 			exit(0);
 		}else{
 			if ( last->prev ){
-				printf("We have already previous need to copy things decide");
-				exit(0);
+				if ( last->offset_x == contents->stack->stack[4] ){
+					if ( last->offset_y==contents->stack->stack[5] ){
+						printf("x axis match. y axis Matched");
+						exit(0);
+					}else{
+						printf("Create New Line but copy last\n");
+						last->LineNumber=contents->TotalLines++;
+						last->PartNumber=0;
+
+						//Setting New Matrix
+						last->offset_x=contents->stack->stack[4];
+						last->offset_y=contents->stack->stack[5];
+
+						last->scaler_x=contents->stack->stack[0];
+						last->scaler_y=contents->stack->stack[3];
+
+						last->tan_a=contents->stack->stack[1];
+						last->tan_b=contents->stack->stack[2];
+
+						//Re-Calculate
+						last->maxheight=(pdf_set_maxheight(contents, last->font->fontName));
+					}
+				}else{
+					printf("Offset X doesn't Matched");
+					exit(0);
+				}
 			}else{
 				//This is the New Block Text, don't needed to do Much
 				//No Text No Previous 1st run of Text Matrix
@@ -127,8 +279,11 @@
 					pdf_content_line	*last;
 					last=pdf_get_last_content_line(contents);
 					if ( last->len ){
-						printf("Allocation New PartNumber of Line\n");
-						exit(0);
+						//Sending to Create a New Part of Line
+						pdf_create_new_linepart(contents);
+
+						//Re get the last content line
+						last=pdf_get_last_content_line(contents);
 					}
 					if ( last->font ){
 						PDFFree(last->font);
@@ -199,7 +354,8 @@
 				pdf_set_text_matrix(contents);
 				break;
 			case B('T', 'w'): break;			//We don't need word spacing
-			case B('E', 'T'): return 1;			//We don't need Show text
+			case B('E', 'T'): return 1;			//Ending the text block
+			case B('T', 'J'): break;			//We don't need Show text
 			case C('s', 'c', 'n'): break;		//We don't need setcolor
 			default:
 				printf("Current matching with=%s\n", buf);
@@ -257,6 +413,12 @@
 						tok = PDF_TOK_EOF;
 					}
 					pdf_clear_stack(contents);
+					break;
+				case PDF_TOK_STRING:
+					pdf_string_push(contents, buf->scratch, buf->len);
+					break;
+				case PDF_TOK_OPEN_ARRAY:
+					pdf_array_push_strings(contents);
 					break;
 				default:
 					if ( tok == PDF_TOK_KEYWORD){
