@@ -134,6 +134,9 @@
 				pdf_content_line *cline, *cnext;
 				for(cline=head->details; cline; ){
 					cnext=cline->next;
+					if ( cline->font ){
+						PDFFree(cline->font);
+					}
 					PDFFree(cline);
 					cline=cnext;
 				}

@@ -10,9 +10,11 @@
 	/***************************** Starting Prototypes ********************/
 	void pdf_clear_stack(pdf_contents *contents);
 	void pdf_create_stack(pdf_contents *contents);
+	void pdf_set_line_font(pdf_contents *contents);
 	void pdf_create_newLine(pdf_contents *contents);
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf);
 	int pdf_run_keyword(pdf_contents *contents PDFUnused, char *buf);
+	pdf_content_line *pdf_get_last_content_line(pdf_contents *contents);
 	void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
 	/***************************** Ending Prototypes **********************/
 
@@ -23,6 +25,49 @@
 	#define 	C(a,b,c) 	(a | b << 8 | c << 16)
 	#define 	nelem(x) 	(int)(sizeof(x)/sizeof((x)[0]))
 	/***************************** Global Variables ********************/
+
+	pdf_content_line *pdf_get_last_content_line(pdf_contents *contents){
+		pdf_content_line *ret=NULL;
+
+		pdf_content_line	*current, *next;
+		for(current=contents->details; current; ){
+			next=current->next;
+			ret=current;
+			current=next;
+		}
+
+		return ret;
+	}
+
+	void pdf_set_line_font(pdf_contents *contents){
+		if ( contents->allfonts ){
+			pdf_content_fonts	*current, *next;
+
+			for(current=contents->allfonts; current; ){
+				next=current->next;
+				if ( strcmp(contents->stack->name, current->ref_name) == 0 ){
+					pdf_content_line	*last;
+					last=pdf_get_last_content_line(contents);
+					if ( last->len ){
+						printf("Allocation New PartNumber of Line\n");
+						exit(0);
+					}
+					if ( last->font ){
+						PDFFree(last->font);
+					}
+					last->font=(pdf_content_line_font*)PDFMalloc(sizeof(pdf_content_line_font));
+					memset(last->font, 0, sizeof(pdf_content_line_font));
+
+					pdf_strlcpy(last->font->fontName, current->name, sizeof(last->font->fontName));
+					pdf_strlcpy(last->font->type, current->type, sizeof(last->font->type));
+					last->font->is_italic=current->is_italic;
+					last->font->is_bold=current->is_bold;
+					break;
+				}
+				current=next;
+			}
+		}
+	}
 
 	void pdf_create_newLine(pdf_contents *contents){
 		pdf_content_line	*line;
@@ -62,6 +107,9 @@
 		}
 
 		switch (key){
+			case B('T', 'f'):
+				pdf_set_line_font(contents);
+				break;
 			default:
 				printf("Current matching with=%s\n", buf);
 				exit(0);

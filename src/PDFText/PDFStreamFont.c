@@ -93,6 +93,32 @@
 					current->Ascent, current->CapHeight, current->ItalicAngle, current->XHeight,
 					current->Descent);
 
+				char *name2;
+				found=0;
+
+				name2=strstr(current->name, "Bold");
+				if ( name2 ){
+					found=1;
+					current->is_bold=1;
+				}
+
+				name2=strstr(current->name, "Italic");
+				if ( name2 ){
+					found=1;
+					current->is_bold=1;
+				}
+
+				if ( !found ){
+					if ( current->ItalicAngle ){
+						current->is_italic=1;
+					}
+					pdf_obj *tmp = pdf_dict_gets(contents->doc, fontdescriptor, "FontWeight");
+					if ( tmp ){
+						printf("FontWeight available\n\n");
+						exit(0);
+					}
+				}
+
 				if ( contents->allfonts ){
 					current->next=contents->allfonts;
 					contents->allfonts=current;

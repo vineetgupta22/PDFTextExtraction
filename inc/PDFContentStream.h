@@ -163,6 +163,18 @@
 			int							XHeight;
 
 			/**
+			*	@var					is_italic
+			*	@brief					Boolean for font if italic
+			**/
+			int							is_italic;
+
+			/**
+			*	@var					is_bold
+			*	@brief					Boolean for font if bold
+			**/
+			int							is_bold;
+
+			/**
 			*	@var					next
 			*	@brief					Reference to Next font details
 			**/
