@@ -138,6 +138,15 @@
 					cline=cnext;
 				}
 			}
+			if ( head->allfonts ){
+				pdf_content_fonts	*cfont, *nfont;
+				for(cfont=head->allfonts; cfont; ){
+					nfont=cfont->next;
+					PDFFree(cfont);
+					cfont=nfont;
+				}
+			}
+
 			PDFFree(head);
 			head=ccurr;
 		}
