@@ -135,7 +135,18 @@
 							//Deflating document
 							pdf_inflate(doc->file, lenp);
 
-							pdf_process_stream(doc, pdf_dict_gets(doc, pageobj, "Resources"), "text", number);
+							pdf_obj *tempp=pdf_dict_gets(doc, pageobj, "Resources");
+							if ( tempp ){
+								pdf_process_stream(doc, tempp, "text", number);
+							}else{
+								tempp=pdf_dict_gets(doc, node, "Resources");
+								if ( tempp ){
+									pdf_process_stream(doc, tempp, "text", number);
+								}else{
+									printf("Resources not Available\n");
+									exit(0);
+								}
+							}
 						}
 					}else{
 						printf("Filters Kind=%c and %d %s\n", filters->kind, __LINE__, __FILE__);
