@@ -8,8 +8,10 @@
 	C_MODE_START
 
 	/***************************** Starting Prototypes ********************/
+	pdf_unicode *pdf_unicode2(void);
 	void pdf_read_fonts(pdf_contents *contents);
 	int pdf_font_set( pdf_contents *contents, char *name );
+	pdf_unicode *pdf_unicode_settings(pdf_contents *contents, pdf_obj *ToUnicode);
 	void pdf_set_font(pdf_contents *contents, char *font_ref_name, pdf_obj *font);
 	/***************************** Ending Prototypes **********************/
 
@@ -17,6 +19,113 @@
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
 	
+	pdf_unicode *pdf_unicode2(void){
+		pdf_unicode *unicode=NULL;
+		pdf_stream *file = NULL;
+		pdf_lexbuf *lex_buffer;
+
+		//Sending to Open the File for Processing
+		file = pdf_open_file("ToUnicode");
+
+		lex_buffer=(pdf_lexbuf *)PDFMalloc(sizeof(pdf_lexbuf));
+		memset(lex_buffer, 0, sizeof(pdf_lexbuf));
+
+		unicode=(pdf_unicode *)PDFMalloc(sizeof(pdf_unicode));
+		memset(unicode, 0, sizeof(pdf_unicode));
+
+		//Sending to Init the lex elements for reading document
+		pdf_lexbuf_init(lex_buffer, PDFTextExt_LEXBUF_SMALL);
+		pdf_token tok;
+		do{
+			tok = pdf_lex(file, lex_buffer);
+			if ( tok == PDF_TOK_KEYWORD ){
+				if ( strcmp(lex_buffer->scratch, "endcodespacerange") == 0 ){
+
+					tok = pdf_lex(file, lex_buffer);
+					if (tok == PDF_TOK_INT){
+						int t, l, z, i=0;
+						int first=0;
+						int number;
+						t=lex_buffer->i*2;
+
+						//Droping beginbfchar
+						tok = pdf_lex(file, lex_buffer);
+
+						for(i=0; i<t; i++){
+							tok = pdf_lex(file, lex_buffer);
+							if ( tok == PDF_TOK_STRING ){
+								if ( first ){
+									z=lex_buffer->len;
+									for(l=0; l<z; l++){
+										if ( ! unicode->Value[number] ){
+											if ( lex_buffer->scratch[l] ){
+												unicode->Value[number]=lex_buffer->scratch[l];
+											}
+										}else{
+											printf("unicode->Value[number]=%d Already set\n", unicode->Value[number]);
+											exit(0);
+										}
+									}
+									first--;
+									continue;
+								}
+								if ( !first ){
+									z=lex_buffer->len;
+									for(l=0; l<z; l++){
+										number=lex_buffer->scratch[l];
+									}
+									first++;
+									continue;
+								}
+							}else{
+								printf("Not PDF_TOK_STRING");
+								exit(0);
+							}
+						}
+					}
+				}
+			}
+		}while (tok != PDF_TOK_EOF);
+
+		PDFFree(lex_buffer);
+		pdf_free_stream(file);
+		return unicode;
+	}
+
+
+	pdf_unicode *pdf_unicode_settings(pdf_contents *contents, pdf_obj *ToUnicode){
+		if ( ToUnicode->kind == PDF_INDIRECT ){
+			pdf_xref_entry *entry;
+			entry = pdf_cache_object(contents->doc, ToUnicode->u.r.num, ToUnicode->u.r.gen);
+
+			if ( entry->offsets ){
+				pdf_obj *filters = pdf_dict_gets(contents->doc, ToUnicode, "Filter");
+
+				if ( filters->kind == PDF_NAME ){
+					if ( strcmp(pdf_to_name(filters), "FlateDecode" ) == 0 ){
+						int lenp = pdf_to_int(contents->doc, pdf_dict_gets(contents->doc, ToUnicode, "Length"));
+
+						//setting the offset to xref offset provided
+						pdf_seek(contents->doc->file, entry->offsets, PDFSEEK_SET);
+
+						//Deflating document
+						pdf_inflate3(contents->doc->file, lenp, "ToUnicode");
+
+						return pdf_unicode2();
+					}
+				}else{
+					printf("Filters Kind=%c and %d %s\n", filters->kind, __LINE__, __FILE__);
+					exit(0);
+				}
+			}else{
+				printf("Doesn't have the offsets %d %s\n", __LINE__, __FILE__);
+				exit(0);
+			}
+		}
+		printf("Settings of ToUnicode - Length\n");
+		exit(0);
+	}
+
 	int pdf_font_set( pdf_contents *contents, char *name){
 		int found=0;
 		if ( contents->allfonts ){
@@ -45,6 +154,16 @@
 
 				current=(pdf_content_fonts*)PDFMalloc(sizeof(pdf_content_fonts));
 				memset(current, 0, sizeof(pdf_content_fonts));
+
+				pdf_obj *ToUnicode;
+				ToUnicode=pdf_dict_gets(contents->doc, font, "ToUnicode");
+
+				if ( ToUnicode ){
+					current->unicode=pdf_unicode_settings(contents, ToUnicode);
+				}else{
+					printf("Unicode is not available\n");
+					exit(0);
+				}
 
 				//Copy the Reference Name
 				pdf_strlcpy(current->ref_name, font_ref_name, sizeof(current->ref_name));
@@ -142,7 +261,7 @@
 				contents->PageNo, TotalFonts);
 
 			for(i=0; i<TotalFonts; i++){
-				printf("Reading Font Number=%d\n", i);
+				printf("\nReading Font Number=%d\n", i);
 				pdf_obj *font=pdf_dict_get_key(fonts, i);
 
 				if ( ! pdf_font_set( contents, pdf_to_name(font) ) ){

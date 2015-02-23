@@ -21,6 +21,7 @@ FILES = PDFInflate.c						\
 		PDFMem.c							\
 		PDFFonts.c							\
 		PDFStream.c							\
+		PDFStreamTD.c						\
 		PDFFonts_TT.c						\
 		PDFStreamFont.c						\
 		PDFStreamParser.c					\

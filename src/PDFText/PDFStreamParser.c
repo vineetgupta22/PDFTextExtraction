@@ -31,6 +31,9 @@
 		switch (key){
 			case B('c', 's'): break;			//We don't need setcolorspace
 			case B('T', 'c'): break;			//We don't need character spacing
+			case B('T', 'd'): 					//New Line Settings
+				pdf_create_new_line(contents, 0);
+				break;
 			case B('T', 'f'):					//Settings Relating to Fonts
 				pdf_set_line_font(contents);
 				break;

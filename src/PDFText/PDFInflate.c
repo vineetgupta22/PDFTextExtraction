@@ -24,6 +24,7 @@
 	int huft_free(struct huft *t);
 	char *pdf_inflate(pdf_stream *file, int length);
 	void pdf_inflate2(pdf_stream *file, int offset);
+	void pdf_inflate3(pdf_stream *file, int offset, const char *buf);
 	int inflate_codes(struct huft *tl, struct huft *td, int bl, int bd);
 	int huft_build(unsigned *b, unsigned n, unsigned s, unsigned short *d, unsigned short *e, struct huft **t, int *m);
 	/***************************** Ending Prototypes **********************/
@@ -704,6 +705,48 @@
 		}
 
 		FILE *out=fopen("font.ttf", "wb");
+		fwrite(slide, 1, wp, out);
+		fclose(out);
+	}
+
+
+	void pdf_inflate3(pdf_stream *file, int offset, const char *buf){
+		int e;                /* last block flag */
+		int r;                /* result code */
+		unsigned h;           /* maximum struct huft's malloc'ed */
+
+		in=file;
+		insize=offset;
+		inptr=0;
+
+		//Dropping version bytes
+		pdf_read_byte(file);
+		pdf_read_byte(file);
+
+		FILE *out=fopen(buf, "wb");
+		/* initialize window, bit buffer */
+		wp = 0;
+		bk = 0;
+		bb = 0;
+
+		/* decompress until the last block */
+		h = 0;
+		do {
+			hufts = 0;
+			if ((r = inflate_block(&e)) != 0){
+				fwrite(slide, 1, wp, out);
+				printf("return r=%d\n", r);
+				exit(0);
+			}
+			if (hufts > h)
+				h = hufts;
+		} while (!e);
+
+		while (bk >= 8) {
+			bk -= 8;
+			inptr--;
+		}
+
 		fwrite(slide, 1, wp, out);
 		fclose(out);
 	}

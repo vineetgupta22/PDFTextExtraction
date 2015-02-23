@@ -9,12 +9,58 @@
 
 	/***************************** Starting Prototypes ********************/
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf);
+	int pdf_check_character(pdf_contents *contents, int character);
+	void pdf_string_push(pdf_contents *contents, char *buf, int len);
 	void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
 	/***************************** Ending Prototypes **********************/
 
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
+
+	int pdf_check_character(pdf_contents *contents PDFUnused, int character){
+		//Get the last line resources before creating new block
+		pdf_content_line	*last;
+		last=pdf_get_last_content_line(contents);
+
+		pdf_content_fonts *current, *next;
+
+		for(current=contents->allfonts; current; ){
+			next=current->next;
+			if ( strcmp(current->name, last->font->fontName) == 0 ){
+				printf("%s\n", last->font->fontName);
+				if ( current->unicode ){
+					printf("Do things with Unicode\n");
+				}else{
+					printf("Do things with Encoding\n");
+					exit(0);
+				}
+				break;
+			}
+			current=next;
+		}
+		return character;
+	}
+
+	void pdf_string_push(pdf_contents *contents, char *buf, int len){
+		int i;
+
+		//Get the last line resources before creating new block
+		pdf_content_line	*last;
+		last=pdf_get_last_content_line(contents);
+
+		for(i=0; i<len; i++){
+			if ( last->len < 512 ){
+				last->text[last->len++]=(char) pdf_check_character(contents, buf[i]);
+			}else{
+				printf("No Space Available\n");
+				exit(0);
+			}
+		}
+		printf("LineNumber=%03d; PartNumber=%03d; TextLength=%03d;\n \
+				====================================\n%s\n====================================\n",
+				last->LineNumber, last->PartNumber, last->len, last->text);
+	}
 
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf){
 		pdf_token tok = PDF_TOK_ERROR;
@@ -65,6 +111,15 @@
 						tok = PDF_TOK_EOF;
 					}
 					pdf_clear_stack(contents);
+					break;
+				case PDF_TOK_OPEN_ARRAY:
+					printf("PDF_TOK_OPEN_ARRAY\n");
+					exit(0);
+				case PDF_TOK_OPEN_DICT:
+					printf("PDF_TOK_OPEN_DICT\n");
+					exit(0);
+				case PDF_TOK_STRING:
+					pdf_string_push(contents, buf->scratch, buf->len);
 					break;
 				default:
 					printf("Token=%d\ndefault %s\n", tok, buf->scratch);

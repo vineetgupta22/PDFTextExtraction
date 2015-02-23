@@ -125,6 +125,7 @@
 		//Function defined in src/PDFInflate.c
 		extern char *pdf_inflate(pdf_stream *file, int offset);
 		extern void pdf_inflate2(pdf_stream *file, int offset);
+		extern void pdf_inflate3(pdf_stream *file, int offset, const char *buf);
 
 		//Function defined in src/PDFStream.c
 		extern void pdf_process_stream(pdf_document *doc, pdf_obj *resources, const char *name, int number);
@@ -138,6 +139,9 @@
 		//Function defined in src/PDFStreamFont.c
 		extern void pdf_read_fonts(pdf_contents *contents);
 		extern float pdf_set_maxheight(pdf_contents *contents, char *name);
+
+		//Function defined in PDFStreamTD.c
+		extern void pdf_create_new_line(pdf_contents *contents, int type);
 
 		//Function defined in PDFStreamUtility.c
 		extern void pdf_clear_stack(pdf_contents *contents);

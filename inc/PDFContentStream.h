@@ -19,10 +19,15 @@
 		#define 	C(a,b,c) 	(a | b << 8 | c << 16)
 
 		typedef 	struct PDFTextExtraction_Documents_Content_Stream					pdf_contents;
+		typedef 	struct PDFTextExtraction_Documents_Font_CMAP_Unicode				pdf_unicode;
 		typedef 	struct PDFTextExtraction_Documents_Content_Stream_Stack				pdf_contents_stack;
 		typedef		struct PDFTextExtraction_Documents_Content_Stream_Lines				pdf_content_line;
 		typedef 	struct PDFTextExtraction_Documents_Content_Stream_Lines_Fonts		pdf_content_fonts;
 		typedef 	struct PDFTextExtraction_Documents_Content_Stream_Line_Font			pdf_content_line_font;
+
+		struct PDFTextExtraction_Documents_Font_CMAP_Unicode{
+			int				Value[256];
+		};
 
 		struct PDFTextExtraction_Documents_Content_Stream_Line_Font{
 			/**
@@ -238,6 +243,12 @@
 			*	@brief					Boolean for font if bold
 			**/
 			int							is_bold;
+
+			/**
+			*	@var					Unicode
+			*	@brief					Unicode CMAP Table Details
+			**/
+			pdf_unicode					*unicode;
 
 			/**
 			*	@var					next
