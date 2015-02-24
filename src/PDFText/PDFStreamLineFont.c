@@ -37,13 +37,13 @@
 	}
 
 	void pdf_set_line_font(pdf_contents *contents PDFUnused){
+		pdf_content_line	*last=NULL;
 		if ( contents->allfonts ){
 			pdf_content_fonts	*current, *next;
 
 			for(current=contents->allfonts; current; ){
 				next=current->next;
 				if ( strcmp(contents->stack->name, current->ref_name) == 0 ){
-					pdf_content_line	*last;
 					last=pdf_get_last_content_line(contents);
 					if ( last->len ){
 						//Sending to Create a New Part of Line
@@ -62,6 +62,9 @@
 					pdf_strlcpy(last->font->type, current->type, sizeof(last->font->type));
 					last->font->is_italic=current->is_italic;
 					last->font->is_bold=current->is_bold;
+					last->font->size=(int)contents->stack->stack[0];
+					last->scaler_x=contents->stack->stack[0];
+					last->scaler_y=contents->stack->stack[0];
 
 					if ( last->font ){
 						last->maxheight=(pdf_set_maxheight(contents, last->font->fontName));

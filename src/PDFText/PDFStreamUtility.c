@@ -38,10 +38,10 @@
 		line->offset_y=last->offset_y;
 
 		line->scaler_x=last->scaler_x;
-		last->scaler_y=last->scaler_y;
+		line->scaler_y=last->scaler_y;
 
 		line->tan_a=last->tan_a;
-		last->tan_b=last->tan_b;
+		line->tan_b=last->tan_b;
 
 		line->maxheight=last->maxheight;
 		line->Height_Offset_Y=last->Height_Offset_Y;
@@ -51,9 +51,6 @@
 
 		//Copying the all the font attributes
 		memcpy(line->font, last->font, sizeof(pdf_content_line_font));
-
-		printf("NewPart LineNumber=%03d; PartNumber=%03d; TextLength=%03d; Previous PartNumber=%d\n",
-			line->LineNumber, line->PartNumber, line->len, last->PartNumber);
 
 		if ( contents->details ){
 			if ( contents->details->next ){

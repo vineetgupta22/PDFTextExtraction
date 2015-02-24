@@ -1,6 +1,6 @@
 /**
-*	@file			PDFStream.c
-*	@brief			Functions Relating to Streams
+*	@file			PDFStreamFont.c
+*	@brief			Functions Relating to Streams Font
 **/
 
 	#include <PDFTextExtraction.h>
@@ -10,6 +10,7 @@
 	/***************************** Starting Prototypes ********************/
 	pdf_unicode *pdf_unicode2(void);
 	void pdf_read_fonts(pdf_contents *contents);
+	float pdf_offsety_max(pdf_contents *contents);
 	int pdf_font_set( pdf_contents *contents, char *name );
 	pdf_unicode *pdf_unicode_settings(pdf_contents *contents, pdf_obj *ToUnicode);
 	void pdf_set_font(pdf_contents *contents, char *font_ref_name, pdf_obj *font);
@@ -18,7 +19,20 @@
 
 	/***************************** Global Variables ********************/
 	/***************************** Global Variables ********************/
-	
+
+	float pdf_offsety_max(pdf_contents *contents){
+		float ret=0;
+		//Before proceeding Further lets get the last content line
+		pdf_content_line *last=pdf_get_last_content_line(contents);
+
+		if ( last ){
+			ret=(pdf_set_maxheight(contents, last->font->fontName)*last->scaler_x);
+			ret+=last->offset_y;
+			ret+=last->Text_Leading;
+		}
+		return ret;
+	}
+
 	pdf_unicode *pdf_unicode2(void){
 		pdf_unicode *unicode=NULL;
 		pdf_stream *file = NULL;
@@ -192,10 +206,6 @@
 					}
 				}
 
-				printf("FontRefName=%s; FontName=%s; SubType=%s; FirstChar=%d; LastChar=%d;\n",
-					current->ref_name, current->name, current->type, current->FirstChar,
-					current->LastChar);
-
 				pdf_obj *fontdescriptor=pdf_dict_gets(contents->doc, font, "FontDescriptor");
 
 				if ( fontdescriptor && fontdescriptor->kind == PDF_INDIRECT ){
@@ -207,10 +217,6 @@
 				current->ItalicAngle=pdf_to_int(contents->doc, pdf_dict_gets(contents->doc, fontdescriptor, "ItalicAngle"));
 				current->XHeight=pdf_to_int(contents->doc, pdf_dict_gets(contents->doc, fontdescriptor, "XHeight"));
 				current->Descent=pdf_to_int(contents->doc, pdf_dict_gets(contents->doc, fontdescriptor, "Descent"));
-
-				printf("Ascent=%d; CapHeight=%d; ItalicAngle=%d; XHeight=%d; Descent=%d;\n",
-					current->Ascent, current->CapHeight, current->ItalicAngle, current->XHeight,
-					current->Descent);
 
 				char *name2;
 				found=0;
@@ -257,18 +263,13 @@
 			}
 
 			int i, TotalFonts=fonts->u.d.len;
-			printf("Total Number of Fonts used in Page No.%d=%d\n",
-				contents->PageNo, TotalFonts);
 
 			for(i=0; i<TotalFonts; i++){
-				printf("\nReading Font Number=%d\n", i);
 				pdf_obj *font=pdf_dict_get_key(fonts, i);
 
 				if ( ! pdf_font_set( contents, pdf_to_name(font) ) ){
 					//Sending for Setting the Font
 					pdf_set_font(contents, pdf_to_name(font), pdf_dict_get_val(fonts, i));
-				}else{
-					printf("Font Name Already set\n");
 				}
 			}
 

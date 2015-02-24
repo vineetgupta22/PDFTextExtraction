@@ -145,6 +145,9 @@
 				pdf_content_fonts	*cfont, *nfont;
 				for(cfont=head->allfonts; cfont; ){
 					nfont=cfont->next;
+					if ( cfont->unicode ){
+						PDFFree(cfont->unicode);
+					}
 					PDFFree(cfont);
 					cfont=nfont;
 				}
@@ -261,7 +264,6 @@
 		int i;
 		for(i=0; i<doc->page_count; i++){
 			pdf_load_page(doc, i);
-			if ( i==4) break;
 		}
 	}
 

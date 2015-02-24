@@ -135,6 +135,7 @@
 
 		//Function defined in src/PDFStreamLineFont.c
 		extern void pdf_set_line_font(pdf_contents *contents);
+		extern float pdf_offsety_max(pdf_contents *contents);
 
 		//Function defined in src/PDFStreamFont.c
 		extern void pdf_read_fonts(pdf_contents *contents);

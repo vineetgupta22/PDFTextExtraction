@@ -28,9 +28,13 @@
 		for(current=contents->allfonts; current; ){
 			next=current->next;
 			if ( strcmp(current->name, last->font->fontName) == 0 ){
-				printf("%s\n", last->font->fontName);
 				if ( current->unicode ){
-					printf("Do things with Unicode\n");
+					if ( current->unicode->Value[character] < 128 ){
+						return current->unicode->Value[character];
+					}else{
+						printf("Unicode Not Found\n");
+						exit(0);
+					}
 				}else{
 					printf("Do things with Encoding\n");
 					exit(0);
@@ -57,21 +61,34 @@
 				exit(0);
 			}
 		}
-		printf("LineNumber=%03d; PartNumber=%03d; TextLength=%03d;\n \
-				====================================\n%s\n====================================\n",
-				last->LineNumber, last->PartNumber, last->len, last->text);
+
+		if ( last->prev ){
+			if ( last->LineNumber == last->prev->LineNumber ){
+				printf("%s", last->text);
+			}else{
+				printf("\n%s", last->text);
+			}
+		}else{
+			printf("\n%s", last->text);
+		}
 	}
 
 	void pdf_beign_text(pdf_contents *contents, pdf_lexbuf *buf){
 		pdf_token tok = PDF_TOK_ERROR;
 
-		//Creating A newLine with Resources
-		pdf_create_newLine(contents);
+		if ( contents->details ){
+			//Creating A newLine Part with Resources
+			pdf_create_new_linepart(contents);
+		}else{
+			pdf_create_newLine(contents);
+		}
 
 		pdf_read_fonts(contents);
 
-		//Creating stack for contents
-		pdf_create_stack(contents);
+		if ( contents->stack == NULL ){
+			//Creating stack for contents
+			pdf_create_stack(contents);
+		}
 
 		do{
 			tok = pdf_lex(contents->file, buf);
@@ -154,7 +171,6 @@
 			tok = pdf_lex(contents->file, buf);
 			if ( tok == PDF_TOK_KEYWORD ){
 				if ( strcmp(buf->scratch, "BT") == 0 ){
-					printf("Found Block of Text at Page No.%d\n", contents->PageNo);
 					pdf_beign_text(contents, buf);
 				}
 			}
