@@ -9,16 +9,352 @@
 
 	/***************************** Starting Prototypes ********************/
 	pdf_unicode *pdf_unicode2(void);
+	int pdf_encoding_char(char *name);
 	void pdf_read_fonts(pdf_contents *contents);
 	float pdf_offsety_max(pdf_contents *contents);
 	int pdf_font_set( pdf_contents *contents, char *name );
+	pdf_encoding *pdf_encoding_details(pdf_contents *contents, pdf_obj *obj);
+	pdf_encoding *pdf_encoding_settings(pdf_contents *contents, pdf_obj *Encoding);
 	pdf_unicode *pdf_unicode_settings(pdf_contents *contents, pdf_obj *ToUnicode);
 	void pdf_set_font(pdf_contents *contents, char *font_ref_name, pdf_obj *font);
 	/***************************** Ending Prototypes **********************/
 
 
 	/***************************** Global Variables ********************/
+	#define 			_notdef 			NULL
+	const char *pdf_ansi[256] = {
+			_notdef,			/* ASCII 000 */
+			_notdef,			/* ASCII 001 */
+			_notdef,			/* ASCII 002 */
+			_notdef,			/* ASCII 003 */
+			_notdef,			/* ASCII 004 */
+			_notdef,			/* ASCII 005 */
+			_notdef,			/* ASCII 006 */
+			_notdef,			/* ASCII 007 */
+			_notdef,			/* ASCII 008 */
+			_notdef,			/* ASCII 009 */
+			_notdef,			/* ASCII 010 */
+			_notdef,			/* ASCII 011 */
+			_notdef,			/* ASCII 012 */
+			_notdef,			/* ASCII 013 */
+			_notdef,			/* ASCII 014 */
+			_notdef,			/* ASCII 015 */
+			_notdef,			/* ASCII 016 */
+			_notdef,			/* ASCII 017 */
+			_notdef,			/* ASCII 018 */
+			_notdef,			/* ASCII 019 */
+			_notdef,			/* ASCII 020 */
+			_notdef,			/* ASCII 021 */
+			_notdef,			/* ASCII 022 */
+			_notdef,			/* ASCII 023 */
+			_notdef,			/* ASCII 024 */
+			_notdef,			/* ASCII 025 */
+			_notdef,			/* ASCII 026 */
+			_notdef,			/* ASCII 027 */
+			_notdef,			/* ASCII 028 */
+			_notdef,			/* ASCII 029 */
+			_notdef,			/* ASCII 030 */
+			_notdef,			/* ASCII 031 */
+			"space",			/* ASCII 032 */
+			"exclam",			/* ASCII 033 */
+			"quotedbl",			/* ASCII 034 */
+			"numbersign",		/* ASCII 035 */
+			"dollar",			/* ASCII 036 */
+			"percent",			/* ASCII 037 */
+			"ampersand",		/* ASCII 038 */
+			"quotesingle",		/* ASCII 039 */
+			"parenleft",		/* ASCII 040 */
+			"parenright",		/* ASCII 041 */
+			"asterisk",			/* ASCII 042 */
+			"plus",				/* ASCII 043 */
+			"comma",			/* ASCII 044 */
+			"hyphen",			/* ASCII 045 */
+			"period",			/* ASCII 046 */
+			"slash",			/* ASCII 047 */
+			"zero",				/* ASCII 048 */
+			"one",				/* ASCII 049 */
+			"two",				/* ASCII 050 */
+			"three",			/* ASCII 051 */
+			"four",				/* ASCII 052 */
+			"five",				/* ASCII 053 */
+			"six",				/* ASCII 054 */
+			"seven",			/* ASCII 055 */
+			"eight",			/* ASCII 056 */
+			"nine",				/* ASCII 057 */
+			"colon",			/* ASCII 058 */
+			"semicolon",		/* ASCII 059 */
+			"less",				/* ASCII 060 */
+			"equal",			/* ASCII 061 */
+			"greater",			/* ASCII 062 */
+			"question",			/* ASCII 063 */
+			"at",				/* ASCII 064 */
+			"A",				/* ASCII 065 */
+			"B",				/* ASCII 066 */
+			"C",				/* ASCII 067 */
+			"D",				/* ASCII 068 */
+			"E",				/* ASCII 069 */
+			"F",				/* ASCII 070 */
+			"G",				/* ASCII 071 */
+			"H",				/* ASCII 072 */
+			"I",				/* ASCII 073 */
+			"J",				/* ASCII 074 */
+			"K",				/* ASCII 075 */
+			"L",				/* ASCII 076 */
+			"M",				/* ASCII 077 */
+			"N",				/* ASCII 078 */
+			"O",				/* ASCII 079 */
+			"P",				/* ASCII 080 */
+			"Q",				/* ASCII 081 */
+			"R",				/* ASCII 082 */
+			"S",				/* ASCII 083 */
+			"T",				/* ASCII 084 */
+			"U",				/* ASCII 085 */
+			"V",				/* ASCII 086 */
+			"W",				/* ASCII 087 */
+			"X",				/* ASCII 088 */
+			"Y",				/* ASCII 089 */
+			"Z",				/* ASCII 090 */
+			"bracketleft",		/* ASCII 091 */
+			"backslash",		/* ASCII 092 */
+			"bracketright",		/* ASCII 093 */
+			"asciicircum",		/* ASCII 094 */
+			"underscore",		/* ASCII 095 */
+			"grave",			/* ASCII 096 */
+			"a",				/* ASCII 097 */
+			"b",				/* ASCII 098 */
+			"c",				/* ASCII 099 */
+			"d",				/* ASCII 100 */
+			"e",				/* ASCII 101 */
+			"f",				/* ASCII 102 */
+			"g",				/* ASCII 103 */
+			"h",				/* ASCII 104 */
+			"i",				/* ASCII 105 */
+			"j",				/* ASCII 106 */
+			"k",				/* ASCII 107 */
+			"l",				/* ASCII 108 */
+			"m",				/* ASCII 109 */
+			"n",				/* ASCII 110 */
+			"o",				/* ASCII 111 */
+			"p",				/* ASCII 112 */
+			"q",				/* ASCII 113 */
+			"r",				/* ASCII 114 */
+			"s",				/* ASCII 115 */
+			"t",				/* ASCII 116 */
+			"u",				/* ASCII 117 */
+			"v",				/* ASCII 118 */
+			"w",				/* ASCII 119 */
+			"x",				/* ASCII 120 */
+			"y",				/* ASCII 121 */
+			"z",				/* ASCII 122 */
+			"braceleft",		/* ASCII 123 */
+			"bar",				/* ASCII 124 */
+			"braceright",		/* ASCII 125 */
+			"asciitilde",		/* ASCII 126 */
+			"bullet",			/* ASCII 127 */
+			"Euro",				/* ASCII 128 */
+			"bullet",			/* ASCII 129 */
+			"quotesinglbase",	/* ASCII 130 */
+			"florin",			/* ASCII 131 */
+			"quotedblbase",		/* ASCII 132 */
+			"ellipsis",			/* ASCII 133 */
+			"dagger",			/* ASCII 134 */
+			"daggerdbl",		/* ASCII 135 */
+			"circumflex",		/* ASCII 136 */
+			"perthousand",		/* ASCII 137 */
+			"Scaron",			/* ASCII 138 */
+			"guilsinglleft",	/* ASCII 139 */
+			"OE",				/* ASCII 140 */
+			"bullet",			/* ASCII 141 */
+			"Zcaron",			/* ASCII 142 */
+			"bullet",			/* ASCII 143 */
+			"bullet",			/* ASCII 144 */
+			"quoteleft",		/* ASCII 145 */
+			"quoteright",		/* ASCII 146 */
+			"quotedblleft",		/* ASCII 147 */
+			"quotedblright",	/* ASCII 148 */
+			"bullet",			/* ASCII 149 */
+			"endash",			/* ASCII 150 */
+			"emdash",			/* ASCII 151 */
+			"tilde",			/* ASCII 152 */
+			"trademark",		/* ASCII 153 */
+			"scaron",			/* ASCII 154 */
+			"guilsinglright",	/* ASCII 155 */
+			"oe",				/* ASCII 156 */
+			"bullet",			/* ASCII 157 */
+			"zcaron",			/* ASCII 158 */
+			"Ydieresis",		/* ASCII 159 */
+			"space",			/* ASCII 160 */
+			"exclamdown",		/* ASCII 161 */
+			"cent",				/* ASCII 162 */
+			"sterling",			/* ASCII 163 */
+			"currency",			/* ASCII 164 */
+			"yen",				/* ASCII 165 */
+			"brokenbar",		/* ASCII 166 */
+			"section",			/* ASCII 167 */
+			"dieresis",			/* ASCII 168 */
+			"copyright",		/* ASCII 169 */
+			"ordfeminine",		/* ASCII 170 */
+			"guillemotleft",	/* ASCII 171 */
+			"logicalnot",		/* ASCII 172 */
+			"hyphen",			/* ASCII 173 */
+			"registered",		/* ASCII 174 */
+			"macron",			/* ASCII 175 */
+			"degree",			/* ASCII 176 */
+			"plusminus",		/* ASCII 177 */
+			"twosuperior",		/* ASCII 178 */
+			"threesuperior",	/* ASCII 179 */
+			"acute",			/* ASCII 180 */
+			"mu",				/* ASCII 181 */
+			"paragraph",		/* ASCII 182 */
+			"periodcentered",	/* ASCII 183 */
+			"cedilla",			/* ASCII 184 */
+			"onesuperior",		/* ASCII 185 */
+			"ordmasculine",		/* ASCII 186 */
+			"guillemotright",	/* ASCII 187 */
+			"onequarter",		/* ASCII 188 */
+			"onehalf",			/* ASCII 189 */
+			"threequarters",	/* ASCII 190 */
+			"questiondown",		/* ASCII 191 */
+			"Agrave",			/* ASCII 192 */
+			"Aacute",			/* ASCII 193 */
+			"Acircumflex",		/* ASCII 194 */
+			"Atilde",			/* ASCII 195 */
+			"Adieresis",		/* ASCII 196 */
+			"Aring",			/* ASCII 197 */
+			"AE",				/* ASCII 198 */
+			"Ccedilla",			/* ASCII 199 */
+			"Egrave",			/* ASCII 200 */
+			"Eacute",			/* ASCII 201 */
+			"Ecircumflex",		/* ASCII 202 */
+			"Edieresis",		/* ASCII 203 */
+			"Igrave",			/* ASCII 204 */
+			"Iacute",			/* ASCII 205 */
+			"Icircumflex",		/* ASCII 206 */
+			"Idieresis",		/* ASCII 207 */
+			"Eth",				/* ASCII 208 */
+			"Ntilde",			/* ASCII 209 */
+			"Ograve",			/* ASCII 210 */
+			"Oacute",			/* ASCII 211 */
+			"Ocircumflex",		/* ASCII 212 */
+			"Otilde",			/* ASCII 213 */
+			"Odieresis",		/* ASCII 214 */
+			"multiply",			/* ASCII 215 */
+			"Oslash",			/* ASCII 216 */
+			"Ugrave",			/* ASCII 217 */
+			"Uacute",			/* ASCII 218 */
+			"Ucircumflex",		/* ASCII 219 */
+			"Udieresis",		/* ASCII 210 */
+			"Yacute",			/* ASCII 221 */
+			"Thorn",			/* ASCII 222 */
+			"germandbls",		/* ASCII 223 */
+			"agrave",			/* ASCII 224 */
+			"aacute",			/* ASCII 225 */
+			"acircumflex",		/* ASCII 226 */
+			"atilde",			/* ASCII 227 */
+			"adieresis",		/* ASCII 228 */
+			"aring",			/* ASCII 229 */
+			"ae",				/* ASCII 230 */
+			"ccedilla",			/* ASCII 231 */
+			"egrave",			/* ASCII 232 */
+			"eacute",			/* ASCII 233 */
+			"ecircumflex",		/* ASCII 234 */
+			"edieresis",		/* ASCII 235 */
+			"igrave",			/* ASCII 236 */
+			"iacute",			/* ASCII 237 */
+			"icircumflex",		/* ASCII 238 */
+			"idieresis",		/* ASCII 239 */
+			"eth",				/* ASCII 240 */
+			"ntilde",			/* ASCII 241 */
+			"ograve",			/* ASCII 242 */
+			"oacute",			/* ASCII 243 */
+			"ocircumflex",		/* ASCII 244 */
+			"otilde",			/* ASCII 245 */
+			"odieresis",		/* ASCII 246 */
+			"divide",			/* ASCII 247 */
+			"oslash",			/* ASCII 248 */
+			"ugrave",			/* ASCII 249 */
+			"uacute",			/* ASCII 250 */
+			"ucircumflex",		/* ASCII 251 */
+			"udieresis",		/* ASCII 252 */
+			"yacute",			/* ASCII 253 */
+			"thorn",			/* ASCII 254 */
+			"ydieresis"			/* ASCII 255 */
+		};
 	/***************************** Global Variables ********************/
+
+	int pdf_encoding_char(char *name){
+		int i;
+		int found=0;
+		for(i=0; i<256; i++){
+			if ( pdf_ansi[i] ){
+				if ( strcmp(pdf_ansi[i], name) == 0 ){
+					found=1;
+					break;
+				}
+			}
+		}
+		if ( found == 0 ){
+			printf("Not Found Name=%s\n", name);
+			exit(0);
+		}
+		return i;
+	}
+
+
+	pdf_encoding *pdf_encoding_details(pdf_contents *contents PDFUnused, pdf_obj *obj){
+		pdf_encoding *encoding=NULL;
+
+		encoding=(pdf_encoding *)PDFMalloc(sizeof(pdf_encoding));
+		memset(encoding, 0, sizeof(pdf_encoding));
+
+		int i, len=obj->u.a.len;
+		int start=0;
+
+		for(i=0; i<len; i++){
+			pdf_obj *temp=obj->u.a.items[i];
+			if (temp->kind == PDF_INT){
+				start=temp->u.i;
+			}else if (temp->kind == PDF_NAME){
+				encoding->Value[start++]=pdf_encoding_char(temp->u.n);
+			}else{
+				printf("Not an Name or Int");
+				exit(0);
+			}
+		}
+		return encoding;
+	}
+
+
+	pdf_encoding *pdf_encoding_settings(pdf_contents *contents, pdf_obj *Encoding){
+		if ( Encoding->kind == PDF_INDIRECT ){
+			Encoding=pdf_resolve_indirect(contents->doc, Encoding);
+			if ( Encoding->kind == PDF_DICT ){
+				int i, dic_len=Encoding->u.d.len;
+				pdf_obj *key, *value;
+
+				for(i=0; i<dic_len; i++){
+					key=Encoding->u.d.items[i].k;
+
+					if ( key->kind == PDF_NAME ){
+						if ( strcmp (key->u.n, "Differences") == 0 ){
+							value=Encoding->u.d.items[i].v;
+							if ( value->kind == PDF_ARRAY ){
+								return pdf_encoding_details(contents, value);
+							}else{
+								printf("Differences Not an Array");
+								exit(0);
+							}
+						}
+					}else{
+						printf("Key Kind is not Name\n");
+						exit(0);
+					}
+				}
+			}
+		}
+		printf("Settings of Encoding - Length\n");
+		exit(0);
+	}
 
 	float pdf_offsety_max(pdf_contents *contents){
 		float ret=0;
@@ -175,8 +511,14 @@
 				if ( ToUnicode ){
 					current->unicode=pdf_unicode_settings(contents, ToUnicode);
 				}else{
-					printf("Unicode is not available\n");
-					exit(0);
+					pdf_obj *Encoding;
+					Encoding=pdf_dict_gets(contents->doc, font, "Encoding");
+					if ( Encoding ){
+						current->encoding=pdf_encoding_settings(contents, Encoding);
+					}else{
+						printf("Unicode and Encoding not available\n");
+						exit(0);
+					}
 				}
 
 				//Copy the Reference Name

@@ -17,6 +17,7 @@
 		#define 	A(a) 		(a)
 		#define 	B(a,b) 		(a | b << 8)
 		#define 	C(a,b,c) 	(a | b << 8 | c << 16)
+		#define 	pdf_unicode			pdf_encoding
 
 		typedef 	struct PDFTextExtraction_Documents_Content_Stream					pdf_contents;
 		typedef 	struct PDFTextExtraction_Documents_Font_CMAP_Unicode				pdf_unicode;
@@ -249,6 +250,12 @@
 			*	@brief					Unicode CMAP Table Details
 			**/
 			pdf_unicode					*unicode;
+
+			/**
+			*	@var					encoding
+			*	@brief					encoding Table Details
+			**/
+			pdf_encoding				*encoding;
 
 			/**
 			*	@var					next

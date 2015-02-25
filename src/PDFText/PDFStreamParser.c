@@ -38,6 +38,9 @@
 				pdf_set_line_font(contents);
 				break;
 			case B('T', 'j'): break;			//We don't need Show text
+			case B('T', 'm'):
+				pdf_set_text_matrix(contents);	//Setting Text Matrix
+				break;
 			case B('T', 'w'): break;			//We don't need word spacing
 			case B('E', 'T'): return 1;			//Ending the text block
 			case B('T', 'J'): break;			//We don't need Show text

@@ -144,6 +144,9 @@
 		//Function defined in PDFStreamTD.c
 		extern void pdf_create_new_line(pdf_contents *contents, int type);
 
+		//Function defined in PDFStreamTM.c
+		extern void pdf_set_text_matrix(pdf_contents *contents);
+
 		//Function defined in PDFStreamUtility.c
 		extern void pdf_clear_stack(pdf_contents *contents);
 		void pdf_create_new_linepart(pdf_contents *contents);
